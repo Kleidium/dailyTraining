@@ -23,11 +23,11 @@ You can disallow all training or just dangerous training in towns. You can optio
 
 ### Training different skills requires different resources.
 
-Training armor skills requires a small amount of health per hour by default.
+Training **armor skills** requires a small amount of health per hour by default.
 
-Training magic skills requires a fair amount of magicka per hour by default.
+Training **magic skills** requires a fair amount of magicka per hour by default.
 
-Training all other skills requires a moderate amount of stamina per hour by default.
+Training **all other skills** requires a moderate amount of stamina per hour by default.
 
 <br>
 <br>
@@ -36,7 +36,7 @@ Training all other skills requires a moderate amount of stamina per hour by defa
 
 Once you train the same skill 3 days in a row, you gain a free hour of experience per session (no additional time required). This bonus increases with longer streaks:
 
-Tier 1 (3 - 7 Days): 1 free hour of training per session.
+*Tier 1 (3 - 7 Days): 1 free hour of training per session.
 <br>
 Tier 2 (7 - 30 Days): 2 free hours of training per session.
 <br>
@@ -44,6 +44,6 @@ Tier 3 (30 - 180 Days): 3 free hours of training per session.
 <br>
 Tier 4 (180 - 365 Days): 4 free hours of training per session.
 <br>
-Tier 5 (365+ Days): 5 free hours of training per session.
+Tier 5 (365+ Days): 5 free hours of training per session.*
 
 You can only have one streak skill active at a time. To change your streak skill, you must first break your current streak!
