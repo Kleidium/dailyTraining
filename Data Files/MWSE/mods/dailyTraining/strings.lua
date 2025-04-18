@@ -1,5 +1,7 @@
 local stuff = {}
 
+--Flavor Messages------------------------------------------------------------------------------------------------------
+
 stuff.cdFlavor = {
     [1] = "You feel that you're ready to train again.",
     [2] = "Perhaps you should train again soon.",
@@ -30,7 +32,98 @@ stuff.cdFlavor = {
     [27] = "It might be worthwhile to train later.",
     [28] = "You feel like training again.",
     [29] = "Something inside you tells you that you're ready for more practice.",
-    [30] = "You've had some time to think on what you've learned last time. You decide you're ready for more."
+    [30] = "You've had some time to think on what you've learned last time. You decide you're ready for more.",
+    [31] = "A few insights were gained since you last trained. Why not learn to apply them now?",
+    [32] = "The path to mastery lies ahead. All you need do is continue your training.",
+    [33] = "Now may be a good time to go through some exercises.",
+    [34] = "You wonder if you should go over what you've learned once again."
+}
+
+stuff.scribFlavor = {
+    [1] = "Ah. A scrib. Anyway...",
+    [2] = "It was just a scrib. Might as well continue where you left off...",
+    [3] = "Oh, a scrib. Hopefully it doesn't get in your way.",
+    [4] = "Another scrib. At least it's not something dangerous.",
+    [5] = "Ah, so that was what that thumping sound was.",
+    [6] = "Nothing to worry about. Better continue the session.",
+    [7] = "Perhaps it wants to watch?",
+    [8] = "Thankfully something tame this time.",
+    [9] = "The most welcome interruption you could have asked for.",
+    [10] = "Great, a scrib. No need to stop now.",
+    [11] = "Why stop now?",
+    [12] = "Okay. Continuing on...",
+    [13] = "..."
+}
+
+stuff.sounds = {
+    [0] = "Heavy Armor Hit",
+    [1] = "repair fail",
+    [2] = "Medium Armor Hit",
+    [3] = "Item Armor Heavy Up",
+    [4] = "Item Weapon Blunt Down",
+    [5] = "Item Weapon Longblade Down",
+    [6] = "Item Weapon Blunt Down",
+    [7] = "Item Weapon Spear Down",
+    [8] = "FootBareRight",
+    [9] = "enchant fail",
+    [10] = "destruction cast",
+    [11] = "alteration cast",
+    [12] = "illusion cast",
+    [13] = "conjuration cast",
+    [14] = "mysticism cast",
+    [15] = "restoration cast",
+    [16] = "potion fail",
+    [17] = "miss",
+    [18] = "LockedChest",
+    [19] = "corpDRAG",
+    [20] = "LeftS",
+    [21] = "Light Armor Hit",
+    [22] = "Item Weapon Shortblade Down",
+    [23] = "Item Weapon Bow Down",
+    [24] = "scroll",
+    [25] = "",
+    [26] = "Hand To Hand Hit"
+}
+
+----Specialization Skills----------------------------------------------------
+
+----Acrobatics, Light Armor, Marksman, Sneak, Hand to Hand, Short Blade, Mercantile, Speechcraft, Security
+stuff.stealthSkillTable = {
+    [1] = 20,
+    [2] = 21,
+    [3] = 23,
+    [4] = 19,
+    [5] = 26,
+    [6] = 22,
+    [7] = 24,
+    [8] = 25,
+    [9] = 18
+}
+
+----Unarmored, Illusion, Alchemy, Conjuration, Enchant, Alteration, Destruction, Mysticism, Restoration
+stuff.magicSkillTable = {
+    [1] = 17,
+    [2] = 12,
+    [3] = 16,
+    [4] = 13,
+    [5] = 9,
+    [6] = 11,
+    [7] = 10,
+    [8] = 14,
+    [9] = 15
+}
+
+----Heavy Armor, Medium Armor, Spear, Armorer, Axe, Blunt Weapon, Long Blade, Block, Athletics
+stuff.combatSkillTable = {
+    [1] = 3,
+    [2] = 2,
+    [3] = 7,
+    [4] = 1,
+    [5] = 6,
+    [6] = 4,
+    [7] = 5,
+    [8] = 0,
+    [9] = 8
 }
 
 return stuff

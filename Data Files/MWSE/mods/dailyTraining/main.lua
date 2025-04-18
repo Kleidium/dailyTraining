@@ -5,6 +5,7 @@ local logger = require("logging.logger")
 local skillSelection = ""
 local skillNumber = 40
 local skillType = ""
+local hourText = 0
 local costPerHr = 0
 local ambushFlag = 0
 
@@ -25,6 +26,8 @@ event.register("initialized", initialized)
 local id_menu = tes3ui.registerID("kl_train_menu")
 local id_label = tes3ui.registerID("kl_train_label_1")
 local id_label2 = tes3ui.registerID("kl_train_label_2")
+local id_label3 = tes3ui.registerID("kl_train_label_3")
+local id_label_exp = tes3ui.registerID("kl_train_label_exp")
 local id_pane = tes3ui.registerID("kl_train_pane")
 local id_ok = tes3ui.registerID("kl_train_ok")
 local id_cancel = tes3ui.registerID("kl_train_cancel")
@@ -50,10 +53,10 @@ end
 --Cooldown Elapsed--------------------------------------------
 local function cooldownElapsed()
     local modData = getModData(tes3.player)
-    modData.cooldown = 0
-    if (config.trainCD == true and config.cdMessages == true) then
-        tes3.messageBox("" .. strings.cdFlavor[math.random(1, 30)] .. "")
+    if (config.trainCD == true and config.cdMessages == true and modData.cooldown == 1) then
+        tes3.messageBox("" .. strings.cdFlavor[math.random(1, 34)] .. "")
     end
+    modData.cooldown = 0
     log:debug("Training cooldown elapsed.")
 end
 
@@ -70,7 +73,7 @@ local function loseStreak()
         modData.streak = 0
         tes3.messageBox("" .. modData.streakSkill .. " training streak lost!")
         modData.streakSkill = ""
-        log:debug("Training streak lost!")
+        log:info("Training streak lost!")
     end
 end
 
@@ -103,6 +106,7 @@ end
 local function ambush()
     log:debug("Ambush triggered.")
     local cell = tes3.getPlayerCell()
+    local modData = getModData(tes3.player)
     local cameraPosition = tes3.getCameraPosition()
     local spawns = 0
     if cell.isInterior then
@@ -181,32 +185,48 @@ local function ambush()
         end
     else
         if (cell.displayName == "Ashlands Region" and spawns == 0) then
-            tes3.createReference({ object = tes3.getObject("ex_molagmar_sleep"):pickFrom(),
+            local ref = tes3.createReference({ object = tes3.getObject("ex_molagmar_sleep"):pickFrom(),
                 position = cameraPosition,
                 cell = cell })
             spawns = spawns + 1
             log:debug("Ashlands creature spawned!")
+            if string.startswith(ref.id, "scrib") then
+                tes3.messageBox(strings.scribFlavor[math.random(1, 13)])
+                modData.cooldown = 0
+            end
         end
         if (cell.displayName == "Ascadian Isles Region" and spawns == 0) then
-            tes3.createReference({ object = tes3.getObject("ex_ascadianisles_sleep"):pickFrom(),
+            local ref = tes3.createReference({ object = tes3.getObject("ex_ascadianisles_sleep"):pickFrom(),
                 position = cameraPosition,
                 cell = cell })
             spawns = spawns + 1
             log:debug("Ascadian Isles creature spawned!")
+            if string.startswith(ref.id, "scrib") then
+                tes3.messageBox(strings.scribFlavor[math.random(1, 13)])
+                modData.cooldown = 0
+            end
         end
         if (cell.displayName == "Azura's Coast Region" and spawns == 0) then
-            tes3.createReference({ object = tes3.getObject("ex_azurascoast_sleep"):pickFrom(),
+            local ref = tes3.createReference({ object = tes3.getObject("ex_azurascoast_sleep"):pickFrom(),
                 position = cameraPosition,
                 cell = cell })
             spawns = spawns + 1
             log:debug("Azura's Coast creature spawned!")
+            if string.startswith(ref.id, "scrib") then
+                tes3.messageBox(strings.scribFlavor[math.random(1, 13)])
+                modData.cooldown = 0
+            end
         end
         if (cell.displayName == "Bitter Coast Region" and spawns == 0) then
-            tes3.createReference({ object = tes3.getObject("ex_bittercoast_sleep"):pickFrom(),
+            local ref = tes3.createReference({ object = tes3.getObject("ex_bittercoast_sleep"):pickFrom(),
                 position = cameraPosition,
                 cell = cell })
             spawns = spawns + 1
             log:debug("Bitter Coast creature spawned!")
+            if string.startswith(ref.id, "scrib") then
+                tes3.messageBox(strings.scribFlavor[math.random(1, 13)])
+                modData.cooldown = 0
+            end
         end
         if (cell.displayName == "Grazelands Region" and spawns == 0) then
             tes3.createReference({ object = tes3.getObject("ex_grazelands_sleep"):pickFrom(),
@@ -216,11 +236,15 @@ local function ambush()
             log:debug("Grazelands creature spawned!")
         end
         if (cell.displayName == "Molag Amur Region" and spawns == 0) then
-            tes3.createReference({ object = tes3.getObject("ex_molagmar_sleep"):pickFrom(),
+            local ref = tes3.createReference({ object = tes3.getObject("ex_molagmar_sleep"):pickFrom(),
                 position = cameraPosition,
                 cell = cell })
             spawns = spawns + 1
             log:debug("Molag Amur creature spawned!")
+            if string.startswith(ref.id, "scrib") then
+                tes3.messageBox(strings.scribFlavor[math.random(1, 13)])
+                modData.cooldown = 0
+            end
         end
         if (cell.displayName == "Red Mountain Region" and spawns == 0) then
             tes3.createReference({ object = tes3.getObject("ex_RedMtn_all_sleep"):pickFrom(),
@@ -230,18 +254,26 @@ local function ambush()
             log:debug("Red Mountain creature spawned!")
         end
         if (cell.displayName == "Sheogorad Region" and spawns == 0) then
-            tes3.createReference({ object = tes3.getObject("ex_sheogorad_sleep"):pickFrom(),
+            local ref = tes3.createReference({ object = tes3.getObject("ex_sheogorad_sleep"):pickFrom(),
                 position = cameraPosition,
                 cell = cell })
             spawns = spawns + 1
             log:debug("Sheogorad creature spawned!")
+            if string.startswith(ref.id, "scrib") then
+                tes3.messageBox(strings.scribFlavor[math.random(1, 13)])
+                modData.cooldown = 0
+            end
         end
         if (cell.displayName == "West Gash Region" and spawns == 0) then
-            tes3.createReference({ object = tes3.getObject("ex_westgash_sleep"):pickFrom(),
+            local ref = tes3.createReference({ object = tes3.getObject("ex_westgash_sleep"):pickFrom(),
                 position = cameraPosition,
                 cell = cell })
             spawns = spawns + 1
             log:debug("West Gash creature spawned!")
+            if string.startswith(ref.id, "scrib") then
+                tes3.messageBox(strings.scribFlavor[math.random(1, 13)])
+                modData.cooldown = 0
+            end
         end
         if (string.startswith(cell.displayName, "Solstheim") and spawns == 0) then
             tes3.createReference({ object = tes3.getObject("bm_ex_isinplains_sleep"):pickFrom(),
@@ -251,11 +283,15 @@ local function ambush()
             log:debug("Solstheim creature spawned!")
         end
         if (spawns == 0) then
-            tes3.createReference({ object = tes3.getObject("ex_wild_all_sleep"):pickFrom(),
+            local ref = tes3.createReference({ object = tes3.getObject("ex_wild_all_sleep"):pickFrom(),
                 position = cameraPosition,
                 cell = cell })
             spawns = spawns + 1
             log:debug("Generic exterior creature spawned!")
+            if string.startswith(ref.id, "scrib") then
+                tes3.messageBox(strings.scribFlavor[math.random(1, 13)])
+                modData.cooldown = 0
+            end
         end
     end
     timer.delayOneFrame(function()
@@ -273,6 +309,9 @@ local function fadeIn(e)
     local menu = tes3ui.findMenu(id_fillMenu)
     menu:destroy()
     tes3ui.leaveMenuMode()
+    if (config.playSound == true and skillNumber ~= 25 and skillNumber ~= 40) then
+        tes3.playSound({ sound = strings.sounds[skillNumber], volume = 0.7 })
+    end
     tes3.fadeIn({ duration = 0.5 })
     log:debug("Training complete.")
 end
@@ -285,13 +324,112 @@ local function trainTime()
     local bar = menu:findChild(id_fillBar)
     bar.widget.current = (bar.widget.current + 1)
     menu:updateLayout()
+    --Pass Time--
     local gameHour = tes3.getGlobal('GameHour')
     gameHour = gameHour + 1
     tes3.setGlobal('GameHour', gameHour)
+    --Resource Drain--
     if config.trainCost == true then
         tes3.modStatistic({ name = skillType, current = (costPerHr * -1), reference = tes3.mobilePlayer })
     end
-    tes3.player.mobile:exerciseSkill(skillNumber, (config.expMod * 0.1))
+    --Novice Skill Bonus--
+    local skillCheck = tes3.player.mobile:getSkillStatistic(skillNumber)
+    local expBonus = 0.1
+    if skillCheck.base < config.weakSkill then
+        expBonus = expBonus + 0.05
+        log:info("Novice bonus experience rewarded on " .. tes3.getSkillName(skillNumber) .. ".")
+    end
+    --Racial Skill Bonus--
+    local race = tes3.mobilePlayer.object.race
+    if config.raceBonus == true then
+        local raceSwitch = 0
+        for i = 1, 7 do
+            if (skillNumber == race.skillBonuses[i].skill) then
+                raceSwitch = 1
+            end
+        end
+        if raceSwitch == 1 then
+            expBonus = expBonus + 0.015
+            log:info("Racial bonus experience rewarded on " .. tes3.getSkillName(skillNumber) .. ".")
+        end
+    end
+    --Miscellaneous Reduction--
+    local class = tes3.mobilePlayer.object.class
+    if config.miscPenalty == true then
+        local miscSwitch = 1
+        for i = 1, 5 do
+            if (skillNumber == class.majorSkills[i] or skillNumber == class.minorSkills[i]) then
+                miscSwitch = 0
+            end
+        end
+        if miscSwitch == 1 then
+            expBonus = expBonus - 0.015
+            log:info("Miscellaneous experience penalty incurred on " .. tes3.getSkillName(skillNumber) .. ".")
+        end
+    end
+    --Endurance/Willpower Modifier--
+    if config.attModifier == true then
+        if (skillType == "fatigue" or skillType == "health") then
+            local endurance = tes3.mobilePlayer.endurance
+            if endurance.current ~= endurance.base then
+                local modCalc = (((endurance.current / endurance.base) / 10) - 0.1)
+                if modCalc > 0.05 then
+                    modCalc = 0.05
+                end
+                if modCalc < -0.05 then
+                    modCalc = -0.05
+                end
+                expBonus = expBonus + modCalc
+            end
+        else
+            local willpower = tes3.mobilePlayer.willpower
+            if willpower.current ~= willpower.base then
+                local modCalc = (((willpower.current / willpower.base) / 10) - 0.1)
+                if modCalc > 0.05 then
+                    modCalc = 0.05
+                end
+                if modCalc < -0.05 then
+                    modCalc = -0.05
+                end
+                expBonus = expBonus + modCalc
+            end
+        end
+    end
+    --Specialization Skill?--
+    if config.specSkills == true then
+        local specialization = class.specialization
+        local specSwitch = 0
+        if specialization == 0 then
+            for i = 1, 9 do
+                if skillNumber == strings.combatSkillTable[i] then
+                    specSwitch = 1
+                end
+            end
+        end
+        if specialization == 1 then
+            for i = 1, 9 do
+                if skillNumber == strings.magicSkillTable[i] then
+                    specSwitch = 1
+                end
+            end
+        end
+        if specialization == 2 then
+            for i = 1, 9 do
+                if skillNumber == strings.stealthSkillTable[i] then
+                    specSwitch = 1
+                end
+            end
+        end
+        if specSwitch == 1 then
+            tes3.player.mobile:exerciseSkill(skillNumber, (config.expMod * (expBonus + 0.025)))
+            log:info("Specialization bonus experience rewarded on " .. tes3.getSkillName(skillNumber) .. ".")
+        else
+            tes3.player.mobile:exerciseSkill(skillNumber, (config.expMod * expBonus))
+        end
+    else
+        tes3.player.mobile:exerciseSkill(skillNumber, (config.expMod * expBonus))
+    end
+    --Ambush Check--
     if config.ambush == true then
         local cell = tes3.getPlayerCell()
         if (cell.restingIsIllegal == false) then
@@ -357,11 +495,39 @@ local function trainTime()
                     tes3.messageBox("You gained a vast amount of experience through consistently training " ..
                         skillSelection .. " for " .. modData.streak .. " days!")
                 end
-                log:debug("Streak bonus applied! " .. modData.streak .. " day streak!")
+                log:info("Streak bonus applied! " .. modData.streak .. " day streak!")
             end
             log:debug("Streak is " .. modData.streak .. ".")
             if (modData.streakSkill == skillSelection) then
                 modData.lastTrained = 0
+            end
+            --Attribute Burn--
+            if config.skillBurn == true then
+                if (skillType == "fatigue" or skillType == "health") then
+                    tes3.applyMagicSource({
+                        reference = tes3.player,
+                        name = "Training Fatigue",
+                        bypassResistances = true,
+                        effects = {
+                            { id = tes3.effect.drainAttribute, attribute = 5,
+                                duration = (math.random(120, 180) * hourText),
+                                min = (2 * hourText),
+                                max = (5 * hourText) },
+                        },
+                    })
+                else
+                    tes3.applyMagicSource({
+                        reference = tes3.player,
+                        name = "Training Strain",
+                        bypassResistances = true,
+                        effects = {
+                            { id = tes3.effect.drainAttribute, attribute = 2,
+                                duration = (math.random(120, 180) * hourText),
+                                min = (2 * hourText),
+                                max = (5 * hourText) },
+                        },
+                    })
+                end
             end
             --Finish Training-----------------------------------------
             timer.start({ type = timer.real, duration = 1, callback = fadeIn })
@@ -379,11 +545,16 @@ local function onSelect(i)
     local menu = tes3ui.findMenu(id_menu)
     local label = menu:findChild(id_label)
     local label2 = menu:findChild(id_label2)
+    local label3 = menu:findChild(id_label3)
+    local labelE = menu:findChild(id_label_exp)
     local pane = menu:findChild(id_pane)
     local rMenu = tes3ui.findMenu("MenuRestWait")
-    local hourText = tonumber(rMenu:findChild("MenuRestWait_hour_text").text)
+    hourText = tonumber(rMenu:findChild("MenuRestWait_hour_text").text)
+    local skillProg = tes3.mobilePlayer.skillProgress
+    local expAmount = 100
     if (menu) then
         local id = pane:findChild("sTrainB_" .. i .. "")
+        --Change States
         for n = 0, 26 do
             local id2 = pane:findChild("sTrainB_" .. n .. "")
             if id2.widget.state == 4 then
@@ -391,13 +562,16 @@ local function onSelect(i)
             end
         end
         id.widget.state = 4
-        skillSelection = id.text
+        --Take off unwanted part of string--
+        skillSelection = string.gsub(id.text,
+            "     " .. math.round((skillProg[i + 1] / tes3.mobilePlayer:getSkillProgressRequirement(i)) * 100) .. "%%",
+            "")
+        --Determine Skill Type/Cost--
         skillNumber = i
         skillType = "fatigue"
         local skillStat = tes3.player.mobile:getSkillStatistic(skillNumber)
         costPerHr = math.round((skillStat.base * 0.1) * config.costMultF)
-        if (skillNumber == 9 or skillNumber == 10 or skillNumber == 11 or skillNumber == 12 or skillNumber == 13 or
-            skillNumber == 14 or skillNumber == 15) then
+        if (skillNumber >= 9 and skillNumber <= 15) then
             skillType = "magicka"
             costPerHr = math.round((skillStat.base * 0.1) * config.costMultM)
         end
@@ -418,6 +592,114 @@ local function onSelect(i)
             label.text = "Willpower Session Hours: " .. wilLimit .. ""
             label2.text = "" .. skillSelection .. " " .. skillType .. " cost: " .. cost .. ""
         end
+        --Town Training?--
+        if config.townTrain == false then
+            if config.townSkills == true then
+                label3.borderBottom = 5
+                if (
+                    skillNumber == 20 or skillNumber == 16 or skillNumber == 1 or skillNumber == 8 or skillNumber == 24
+                        or skillNumber == 18 or skillNumber == 19 or skillNumber == 25 or skillNumber == 9) then
+                    label3.text = "Trainable in town."
+                else
+                    label3.text = "Unable to train in town."
+                end
+            else
+                label3.text = "Unable to train in town."
+            end
+        end
+        --Novice Skill?--
+        local skillCheck = tes3.player.mobile:getSkillStatistic(skillNumber)
+        if skillCheck.base < config.weakSkill then
+            expAmount = expAmount + 50
+        end
+        --Racial Skill?--
+        local race = tes3.mobilePlayer.object.race
+        if config.raceBonus == true then
+            local raceSwitch = 0
+            for n = 1, 7 do
+                if (skillNumber == race.skillBonuses[n].skill) then
+                    raceSwitch = 1
+                end
+            end
+            if raceSwitch == 1 then
+                expAmount = expAmount + 15
+                log:info("Racial bonus experience rewarded on " .. tes3.getSkillName(skillNumber) .. ".")
+            end
+        end
+        --Miscellaneous Skill?--
+        local class = tes3.mobilePlayer.object.class
+        if config.miscPenalty == true then
+            local miscSwitch = 1
+            for n = 1, 5 do
+                if (skillNumber == class.majorSkills[n] or skillNumber == class.minorSkills[n]) then
+                    miscSwitch = 0
+                end
+            end
+            if miscSwitch == 1 then
+                expAmount = expAmount - 15
+            end
+        end
+        --Endurance/Willpower Modifier--
+        if config.attModifier == true then
+            if (skillType == "fatigue" or skillType == "health") then
+                local endurance = tes3.mobilePlayer.endurance
+                if endurance.current ~= endurance.base then
+                    local modCalc = math.round((((endurance.current / endurance.base) / 10) - 0.1) * 1000)
+                    if modCalc > 50 then
+                        modCalc = 50
+                    end
+                    if modCalc < -50 then
+                        modCalc = -50
+                    end
+                    expAmount = expAmount + modCalc
+                end
+            else
+                local willpower = tes3.mobilePlayer.willpower
+                if willpower.current ~= willpower.base then
+                    local modCalc = math.round((((willpower.current / willpower.base) / 10) - 0.1) * 1000)
+                    if modCalc > 50 then
+                        modCalc = 50
+                    end
+                    if modCalc < -50 then
+                        modCalc = -50
+                    end
+                    expAmount = expAmount + modCalc
+                end
+            end
+        end
+        --Specialization Skill?--
+        if config.specSkills == true then
+            local specialization = class.specialization
+            local specSwitch = 0
+            if specialization == 0 then
+                for n = 1, 9 do
+                    if skillNumber == strings.combatSkillTable[n] then
+                        specSwitch = 1
+                    end
+                end
+            end
+            if specialization == 1 then
+                for n = 1, 9 do
+                    if skillNumber == strings.magicSkillTable[n] then
+                        specSwitch = 1
+                    end
+                end
+            end
+            if specialization == 2 then
+                for n = 1, 9 do
+                    if skillNumber == strings.stealthSkillTable[n] then
+                        specSwitch = 1
+                    end
+                end
+            end
+            if specSwitch == 1 then
+                labelE.text = "Experience Efficiency: " .. (expAmount + 25) .. "%"
+            else
+                labelE.text = "Experience Efficiency: " .. expAmount .. "%"
+            end
+        else
+            labelE.text = "Experience Efficiency: " .. expAmount .. "%"
+        end
         menu:updateLayout()
     end
 end
@@ -430,7 +712,7 @@ local function onOK(e)
     end
     local menu = tes3ui.findMenu(id_menu)
     local rMenu = tes3ui.findMenu("MenuRestWait")
-    local hourText = tonumber(rMenu:findChild("MenuRestWait_hour_text").text)
+    hourText = tonumber(rMenu:findChild("MenuRestWait_hour_text").text)
     local modData = getModData(tes3.player)
     local endLimit = math.round((tes3.mobilePlayer.endurance.current * 0.1) * (config.endMod * 0.1))
     log:trace("Endurance Limit: " .. endLimit .. " hours.")
@@ -441,18 +723,28 @@ local function onOK(e)
         --Training Success Switch-----------------------------------------------------------------------------------------
         local switch = 1
         --Magic Skills-----------------------------------------------------------------------------------------------
-        if (skillNumber == 9 or skillNumber == 10 or skillNumber == 11 or skillNumber == 12 or skillNumber == 13 or
-            skillNumber == 14 or skillNumber == 15) then
+        if (skillNumber >= 9 and skillNumber <= 15) then
 
             log:debug("Magic skill selected. Skill Number: " .. skillNumber .. "")
             --Cooldown--
             if (modData.cooldown == 1 and config.trainCD == true) then
                 tes3.messageBox("You require rest before training again.")
                 switch = 0
-                log:debug("Training still on cooldown.")
+                log:info("Training still on cooldown.")
             end
             --Town Training allowed?--
-            if (config.townTrain == false and switch == 1) then
+            if (config.townTrain == false and config.townSkills == true and switch == 1) then
+                local cell = tes3.getPlayerCell()
+                if cell.restingIsIllegal then
+                    --Is skill not a town skill?--
+                    if skillNumber ~= 9 then
+                        tes3.messageBox("You cannot train " .. tes3.getSkillName(skillNumber) .. " in public areas!")
+                        switch = 0
+                        log:debug("Cannot train " .. tes3.getSkillName(skillNumber) .. " in public areas!")
+                    end
+                end
+            end
+            if (config.townTrain == false and config.townSkills == false and switch == 1) then
                 local cell = tes3.getPlayerCell()
                 if cell.restingIsIllegal then
                     tes3.messageBox("You cannot train in public areas!")
@@ -514,7 +806,20 @@ local function onOK(e)
                 log:debug("Training still on cooldown.")
             end
             --Town Training Allowed?--
-            if (config.townTrain == false and switch == 1) then
+            if (config.townTrain == false and config.townSkills == true and switch == 1) then
+                local cell = tes3.getPlayerCell()
+                if cell.restingIsIllegal then
+                    --Is skill not a town skill?--
+                    if (
+                        skillNumber ~= 20 and skillNumber ~= 16 and skillNumber ~= 1 and skillNumber ~= 8 and
+                            skillNumber ~= 24 and skillNumber ~= 18 and skillNumber ~= 19 and skillNumber ~= 25) then
+                        tes3.messageBox("You cannot train " .. tes3.getSkillName(skillNumber) .. " in public areas!")
+                        switch = 0
+                        log:debug("Cannot train " .. tes3.getSkillName(skillNumber) .. " in public areas!")
+                    end
+                end
+            end
+            if (config.townTrain == false and config.townSkills == false and switch == 1) then
                 local cell = tes3.getPlayerCell()
                 if cell.restingIsIllegal then
                     tes3.messageBox("You cannot train in public areas!")
@@ -601,14 +906,16 @@ end
 --Training Menu----------------------------------------------------------------------------------
 local function trainMenu(e)
     local modData = getModData(tes3.player)
+    local rMenu = tes3ui.findMenu("MenuRestWait")
+    hourText = tonumber(rMenu:findChild("MenuRestWait_hour_text").text)
+    skillNumber = 40
     -- Create window and frame
     local menu = tes3ui.createMenu { id = id_menu, fixedFrame = true }
-    --menu.minWidth = 440
 
     -- Create layout
-    local input_label = menu:createLabel { id = id_label, text = "You decide to train." }
+    local input_label = menu:createLabel { id = id_label, text = "You decide to train for " .. hourText .. " hours." }
     local input_label2 = menu:createLabel { id = id_label2, text = "Select skill to train." }
-    input_label2.borderBottom = 5
+    local input_label3 = menu:createLabel { id = id_label3, text = "" }
 
     local pane_block = menu:createBlock { id = "pane_block" }
     pane_block.autoWidth = true
@@ -631,8 +938,12 @@ local function trainMenu(e)
     pane.widget.scrollbarVisible = true
 
     --Skill List--
+    local skillProg = tes3.mobilePlayer.skillProgress
     for i = 0, 8 do
-        local b = pane:createTextSelect { text = tes3.skillName[i], id = "sTrainB_" .. i .. "" }
+        local b = pane:createTextSelect { text = "" ..
+            tes3.skillName[i] ..
+            "     " .. math.round((skillProg[i + 1] / tes3.mobilePlayer:getSkillProgressRequirement(i)) * 100) .. "%",
+            id = "sTrainB_" .. i .. "" }
         if config.noColor == false then
             b.widget.idleActive = { 0.6, 0.6, 0.0 }
         end
@@ -640,7 +951,10 @@ local function trainMenu(e)
     end
     local line = pane:createDivider()
     for i = 9, 17 do
-        local b = pane:createTextSelect { text = tes3.skillName[i], id = "sTrainB_" .. i .. "" }
+        local b = pane:createTextSelect { text = "" ..
+            tes3.skillName[i] ..
+            "     " .. math.round((skillProg[i + 1] / tes3.mobilePlayer:getSkillProgressRequirement(i)) * 100) .. "%",
+            id = "sTrainB_" .. i .. "" }
         if config.noColor == false then
             b.widget.idleActive = { 0.6, 0.6, 0.0 }
         end
@@ -648,7 +962,10 @@ local function trainMenu(e)
     end
     local line2 = pane:createDivider()
     for i = 18, 26 do
-        local b = pane:createTextSelect { text = tes3.skillName[i], id = "sTrainB_" .. i .. "" }
+        local b = pane:createTextSelect { text = "" ..
+            tes3.skillName[i] ..
+            "     " .. math.round((skillProg[i + 1] / tes3.mobilePlayer:getSkillProgressRequirement(i)) * 100) .. "%",
+            id = "sTrainB_" .. i .. "" }
         if config.noColor == false then
             b.widget.idleActive = { 0.6, 0.6, 0.0 }
         end
@@ -659,7 +976,7 @@ local function trainMenu(e)
     if config.noColor == false then
         for i = 9, 15 do
             local b = pane:findChild("sTrainB_" .. i .. "")
-            b.widget.idle = { 0.2, 0.2, 0.6 }
+            b.widget.idle = { 0.3, 0.3, 0.7 }
         end
 
         for i = 2, 3 do
@@ -697,7 +1014,8 @@ local function trainMenu(e)
         c_3.widget.idle = { 0.2, 0.6, 0.2 }
     end
 
-    --Streak Info--
+    --Streak/Bonus Info--
+    local expBonusLabel = pane_block:createLabel({ id = id_label_exp, text = "Experience Efficiency:" })
     local streakLabel = pane_block:createLabel({ text = "Streak Skill: " .. modData.streakSkill .. "" })
     local streakTotal = pane_block:createLabel({ text = "Streak Amount: " .. modData.streak .. " days." })
 
@@ -730,11 +1048,14 @@ local function trainButton(e)
     local tButton = windowB:createButton({ id = "kl_train_button_id", text = "Train" })
     tButton.borderAllSides = 0
     tButton.borderLeft = 3
+    windowB:reorderChildren(-2, -1, 1)
     window:updateLayout()
     tButton:register(tes3.uiEvent.mouseClick, trainMenu)
 end
 
 event.register(tes3.event.uiActivated, trainButton, { filter = "MenuRestWait" })
+
+
 
 --Config Stuff------------------------------------------------------------------------------------------------------------------------------
 event.register("modConfigReady", function()
