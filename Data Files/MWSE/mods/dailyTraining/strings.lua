@@ -25,7 +25,12 @@ stuff.cdFlavor = {
     [22] = "Training time.",
     [23] = "You're ready to make time for some training.",
     [24] = "You feel compelled to practice again today.",
-    [25] = "Enough time has passed. You can train now."
+    [25] = "Enough time has passed. You can train now.",
+    [26] = "You figure that you'll have time to study a skill soon.",
+    [27] = "It might be worthwhile to train later.",
+    [28] = "You feel like training again.",
+    [29] = "Something inside you tells you that you're ready for more practice.",
+    [30] = "You've had some time to think on what you've learned last time. You decide you're ready for more."
 }
 
 return stuff

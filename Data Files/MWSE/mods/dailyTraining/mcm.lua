@@ -16,7 +16,7 @@ local function createPage(label)
         noScroll = false,
     }
     page.sidebar:createInfo {
-        text = "                          Daily Training \n\nAllows the player to spend time training instead of wasting time waiting. Training awards a small amount of skill experience per hour trained. Skills cannot be trained beyond 75 by default.\n\nBy default, training has a 24 hour cooldown. Also, the amount of hours the player can train is limited by Endurance for non-magical skills and Willpower for skills that require the use of magic (configurable).\n\nMagical skills require magicka per hour, armor skills require health per hour, and all other skills require stamina per hour."
+        text = "                          Daily Training \n\nAllows the player to spend time training instead of wasting time waiting. Training awards a small amount of skill experience per hour trained. Skills cannot be trained beyond 75 by default.\n\nBy default, training has a 24 hour cooldown. Also, the amount of hours the player can train is limited by Endurance for non-magical skills and Willpower for skills that require the use of magic (configurable).\n\nBy default, Magical skills require magicka per hour, armor skills require health per hour, and all other skills require stamina per hour. There is an optional chance of training being interrupted in dangerous areas."
     }
     page.sidebar:createHyperLink {
         text = "Made by Kleidium",
@@ -99,6 +99,29 @@ globalSettings:createOnOffButton {
     variable = mwse.mcm.createTableVariable { id = "townTrain", table = config }
 }
 
+globalSettings:createOnOffButton {
+    label = "Training Interruption",
+    description = "If this is turned on, you can be interrupted while training in the wilderness and in interiors with hostiles. If a dungeon is cleared of hostiles, it is considered safe.",
+    variable = mwse.mcm.createTableVariable { id = "ambush", table = config }
+}
+
+globalSettings:createSlider {
+    label = "Interruption Chance",
+    description = "The chance of being ambushed while training each hour you train.",
+    max = 100,
+    min = 1,
+    variable = EasyMCM:createTableVariable {
+        id = "ambushChance",
+        table = config
+    }
+}
+
+globalSettings:createOnOffButton {
+    label = "Session Limits",
+    description = "If this is turned on, the amount of hours you are able to train per session is limited by Endurance for non-magical skills and Willpower for magical skills.",
+    variable = mwse.mcm.createTableVariable { id = "sessionLimit", table = config }
+}
+
 globalSettings:createSlider {
     label = "Endurance Bonus",
     description = "Every 10 points of Endurance increases the amount of hours you are able to train in one session by 1/10th of this amount, rounded. Applies to non-magical skills. Default: 5 (5 = 5 hours per session maximum at Endurance 100)",
@@ -119,6 +142,23 @@ globalSettings:createSlider {
         id = "wilMod",
         table = config
     }
+}
+
+globalSettings:createSlider {
+    label = "Experience Ratio",
+    description = "This affects the amount of experience gained per hour trained. 1 is very low and 20 is fairly high. Default: 5",
+    max = 20,
+    min = 1,
+    variable = EasyMCM:createTableVariable {
+        id = "expMod",
+        table = config
+    }
+}
+
+globalSettings:createOnOffButton {
+    label = "Training Resource Cost",
+    description = "If this is turned on, training armor skills requires health, training magical skills requires magicka, and training all other skills requires stamina.",
+    variable = mwse.mcm.createTableVariable { id = "trainCost", table = config }
 }
 
 globalSettings:createSlider {

@@ -6,6 +6,7 @@ local skillSelection = ""
 local skillNumber = 40
 local skillType = ""
 local costPerHr = 0
+local ambushFlag = 0
 
 local log = logger.new {
     name = "Daily Training",
@@ -51,7 +52,7 @@ local function cooldownElapsed()
     local modData = getModData(tes3.player)
     modData.cooldown = 0
     if (config.trainCD == true and config.cdMessages == true) then
-        tes3.messageBox("" .. strings.cdFlavor[math.random(1, 25)] .. "")
+        tes3.messageBox("" .. strings.cdFlavor[math.random(1, 30)] .. "")
     end
     log:debug("Training cooldown elapsed.")
 end
@@ -75,6 +76,198 @@ end
 
 timer.register("dailyTraining:loseStreak", loseStreak)
 
+--Hostile actor check in interiors-----------------------------------
+local function isHostileToPlayer()
+    local cell = tes3.getPlayerCell()
+    for cre in cell:iterateReferences(tes3.objectType.creature) do --Check creatures
+        if (cre ~= nil and cre.mobile ~= nil) then
+            if (cre.mobile.fight >= 83 and cre.mobile.health.current > 0) then
+                log:debug("Hostile creature found.")
+                return true
+            end
+        end
+    end
+    for npc in cell:iterateReferences(tes3.objectType.npc) do --Check creatures
+        if (npc ~= nil and npc.mobile ~= nil) then
+            if (npc.mobile.fight >= 83 and npc.mobile.health.current > 0) then
+                log:debug("Hostile NPC found.")
+                return true
+            end
+        end
+    end
+    log:debug("No hostiles found.")
+    return false
+end
+
+--Ambushed!-------------------------------------------------------
+local function ambush()
+    log:debug("Ambush triggered.")
+    local cell = tes3.getPlayerCell()
+    local cameraPosition = tes3.getCameraPosition()
+    local spawns = 0
+    if cell.isInterior then
+        for cre in cell:iterateReferences(tes3.objectType.creature) do --Check creatures
+            if (cre ~= nil and cre.mobile ~= nil and spawns == 0) then
+                if (
+                    string.endswith(cre.mobile.reference.object.name, "Sphere") or
+                        string.endswith(cre.mobile.reference.object.name, "Centurion") or
+                        string.endswith(cre.mobile.reference.object.name, "Fabricant") or
+                        string.startswith(cre.mobile.reference.object.name, "Centurion") or
+                        string.startswith(cre.mobile.reference.object.name, "Dwarven")) then
+                    if (cre.mobile.health.current > 0 and cre.mobile.fight >= 83) then
+                        tes3.createReference({ object = tes3.getObject("in_dwe_all_lev+2"):pickFrom(),
+                            position = cameraPosition,
+                            cell = cell })
+                        spawns = spawns + 1
+                        log:debug("Dwemer creature spawned!")
+                    end
+                end
+                if (string.startswith(cre.mobile.reference.id, "bm") or string.startswith(cre.mobile.reference.id, "BM")
+                    ) then
+                    if (cre.mobile.health.current > 0 and cre.mobile.fight >= 83) then
+                        tes3.createReference({ object = tes3.getObject("bm_in_icecaves"):pickFrom(),
+                            position = cameraPosition,
+                            cell = cell })
+                        spawns = spawns + 1
+                        log:debug("Bloodmoon creature spawned!")
+                    end
+                end
+                if (string.startswith(cre.mobile.reference.id, "goblin")) then
+                    if (cre.mobile.health.current > 0 and cre.mobile.fight >= 83) then
+                        tes3.createReference({ object = tes3.getObject("in_goblins"):pickFrom(),
+                            position = cameraPosition,
+                            cell = cell })
+                        spawns = spawns + 1
+                        log:debug("Goblin creature spawned!")
+                    end
+                end
+                if (cre.mobile.reference.object.type == 1) then
+                    if (cre.mobile.health.current > 0 and cre.mobile.fight >= 83) then
+                        tes3.createReference({ object = tes3.getObject("in_dae_all_lev+2"):pickFrom(),
+                            position = cameraPosition,
+                            cell = cell })
+                        spawns = spawns + 1
+                        log:debug("Daedra spawned!")
+                    end
+                end
+                if (cre.mobile.reference.object.type == 2) then
+                    if (cre.mobile.health.current > 0 and cre.mobile.fight >= 83) then
+                        tes3.createReference({ object = tes3.getObject("in_tomb_all_lev+2"):pickFrom(),
+                            position = cameraPosition,
+                            cell = cell })
+                        spawns = spawns + 1
+                        log:debug("Undead spawned!")
+                    end
+                end
+                if (cre.mobile.reference.object.type == 3) then
+                    if (cre.mobile.health.current > 0 and cre.mobile.fight >= 83) then
+                        tes3.createReference({ object = tes3.getObject("in_6th_all_lev+2"):pickFrom(),
+                            position = cameraPosition,
+                            cell = cell })
+                        spawns = spawns + 1
+                        log:debug("Humanoid spawned!")
+                    end
+                end
+                if spawns == 0 then
+                    if (cre.mobile.health.current > 0 and cre.mobile.fight >= 83) then
+                        tes3.createReference({ object = tes3.getObject("in_cave_all_lev+2"):pickFrom(),
+                            position = cameraPosition,
+                            cell = cell })
+                        spawns = spawns + 1
+                        log:debug("Regular cave creature spawned!")
+                    end
+                end
+            end
+        end
+    else
+        if (cell.displayName == "Ashlands Region" and spawns == 0) then
+            tes3.createReference({ object = tes3.getObject("ex_molagmar_sleep"):pickFrom(),
+                position = cameraPosition,
+                cell = cell })
+            spawns = spawns + 1
+            log:debug("Ashlands creature spawned!")
+        end
+        if (cell.displayName == "Ascadian Isles Region" and spawns == 0) then
+            tes3.createReference({ object = tes3.getObject("ex_ascadianisles_sleep"):pickFrom(),
+                position = cameraPosition,
+                cell = cell })
+            spawns = spawns + 1
+            log:debug("Ascadian Isles creature spawned!")
+        end
+        if (cell.displayName == "Azura's Coast Region" and spawns == 0) then
+            tes3.createReference({ object = tes3.getObject("ex_azurascoast_sleep"):pickFrom(),
+                position = cameraPosition,
+                cell = cell })
+            spawns = spawns + 1
+            log:debug("Azura's Coast creature spawned!")
+        end
+        if (cell.displayName == "Bitter Coast Region" and spawns == 0) then
+            tes3.createReference({ object = tes3.getObject("ex_bittercoast_sleep"):pickFrom(),
+                position = cameraPosition,
+                cell = cell })
+            spawns = spawns + 1
+            log:debug("Bitter Coast creature spawned!")
+        end
+        if (cell.displayName == "Grazelands Region" and spawns == 0) then
+            tes3.createReference({ object = tes3.getObject("ex_grazelands_sleep"):pickFrom(),
+                position = cameraPosition,
+                cell = cell })
+            spawns = spawns + 1
+            log:debug("Grazelands creature spawned!")
+        end
+        if (cell.displayName == "Molag Amur Region" and spawns == 0) then
+            tes3.createReference({ object = tes3.getObject("ex_molagmar_sleep"):pickFrom(),
+                position = cameraPosition,
+                cell = cell })
+            spawns = spawns + 1
+            log:debug("Molag Amur creature spawned!")
+        end
+        if (cell.displayName == "Red Mountain Region" and spawns == 0) then
+            tes3.createReference({ object = tes3.getObject("ex_RedMtn_all_sleep"):pickFrom(),
+                position = cameraPosition,
+                cell = cell })
+            spawns = spawns + 1
+            log:debug("Red Mountain creature spawned!")
+        end
+        if (cell.displayName == "Sheogorad Region" and spawns == 0) then
+            tes3.createReference({ object = tes3.getObject("ex_sheogorad_sleep"):pickFrom(),
+                position = cameraPosition,
+                cell = cell })
+            spawns = spawns + 1
+            log:debug("Sheogorad creature spawned!")
+        end
+        if (cell.displayName == "West Gash Region" and spawns == 0) then
+            tes3.createReference({ object = tes3.getObject("ex_westgash_sleep"):pickFrom(),
+                position = cameraPosition,
+                cell = cell })
+            spawns = spawns + 1
+            log:debug("West Gash creature spawned!")
+        end
+        if (string.startswith(cell.displayName, "Solstheim") and spawns == 0) then
+            tes3.createReference({ object = tes3.getObject("bm_ex_isinplains_sleep"):pickFrom(),
+                position = cameraPosition,
+                cell = cell })
+            spawns = spawns + 1
+            log:debug("Solstheim creature spawned!")
+        end
+        if (spawns == 0) then
+            tes3.createReference({ object = tes3.getObject("ex_wild_all_sleep"):pickFrom(),
+                position = cameraPosition,
+                cell = cell })
+            spawns = spawns + 1
+            log:debug("Generic exterior creature spawned!")
+        end
+    end
+    timer.delayOneFrame(function()
+        timer.delayOneFrame(function()
+            timer.delayOneFrame(function()
+                ambushFlag = 0
+                tes3.messageBox("Your training has been interrupted.")
+            end)
+        end)
+    end)
+end
+
 --End Training------------------------------------------------
 local function fadeIn(e)
     local menu = tes3ui.findMenu(id_fillMenu)
@@ -86,69 +279,97 @@ end
 
 --Training----------------------------------------------------
 local function trainTime()
+    if ambushFlag == 1 then return end
+    if tes3ui.findMenu(id_fillMenu) == nil then return end
     local menu = tes3ui.findMenu(id_fillMenu)
     local bar = menu:findChild(id_fillBar)
     bar.widget.current = (bar.widget.current + 1)
     menu:updateLayout()
     local gameHour = tes3.getGlobal('GameHour')
     gameHour = gameHour + 1
-    tes3.modStatistic({ name = skillType, current = (costPerHr * -1), reference = tes3.mobilePlayer })
-    tes3.player.mobile:exerciseSkill(skillNumber, 1)
-    if (bar.widget.current == bar.widget.max) then
-        local modData = getModData(tes3.player)
-        --Streak Check-----------------------------------------
-        local added = 0
-        if modData.streak == 0 then
-            modData.streak = modData.streak + 1
-            added = 1
-            modData.dayCheck = 0
-            modData.streakSkill = skillSelection
-            log:debug("Streak is 0. Streak is now 1.")
+    tes3.setGlobal('GameHour', gameHour)
+    if config.trainCost == true then
+        tes3.modStatistic({ name = skillType, current = (costPerHr * -1), reference = tes3.mobilePlayer })
+    end
+    tes3.player.mobile:exerciseSkill(skillNumber, (config.expMod * 0.1))
+    if config.ambush == true then
+        local cell = tes3.getPlayerCell()
+        if (cell.restingIsIllegal == false) then
+            if (cell.isInterior and isHostileToPlayer()) then
+                if math.random(1, 99) < config.ambushChance then
+                    ambush()
+                    fadeIn()
+                    ambushFlag = 1
+                    log:debug("Training was interrupted in an interior!")
+                end
+            end
+            if cell.isInterior == false then
+                if math.random(1, 99) < config.ambushChance then
+                    ambush()
+                    fadeIn()
+                    ambushFlag = 1
+                    log:debug("Training was interrupted in an exterior!")
+                end
+            end
         end
-        if (modData.dayCheck >= 20 and added == 0 and modData.streakSkill == skillSelection) then
-            modData.streak = modData.streak + 1
-            added = 1
-            modData.dayCheck = 0
-            log:debug("Over 20 hours since last trained. Streak added.")
-        end
-        if (modData.streak >= 3 and modData.streakSkill == skillSelection and config.streakBonus == true) then
-            if (modData.streak >= 3 and modData.streak < 7) then
-                tes3.player.mobile:exerciseSkill(skillNumber, 1)
-                tes3.messageBox("You gained a little experience through consistently training " ..
-                    skillSelection .. " for " .. modData.streak .. " days!")
+    end
+    if bar.widget ~= nil then
+        if (bar.widget.current == bar.widget.max) then
+            local modData = getModData(tes3.player)
+            --Streak Check-----------------------------------------
+            local added = 0
+            if modData.streak == 0 then
+                modData.streak = modData.streak + 1
+                added = 1
+                modData.dayCheck = 0
+                modData.streakSkill = skillSelection
+                log:debug("Streak is 0. Streak is now 1.")
             end
-            if (modData.streak >= 7 and modData.streak < 30) then
-                tes3.player.mobile:exerciseSkill(skillNumber, 2)
-                tes3.messageBox("You gained a fair amount of experience through consistently training " ..
-                    skillSelection .. " for " .. modData.streak .. " days!")
+            if (modData.dayCheck >= 20 and added == 0 and modData.streakSkill == skillSelection) then
+                modData.streak = modData.streak + 1
+                added = 1
+                modData.dayCheck = 0
+                log:debug("Over 20 hours since last trained. Streak added.")
             end
-            if (modData.streak >= 30 and modData.streak < 180) then
-                tes3.player.mobile:exerciseSkill(skillNumber, 3)
-                tes3.messageBox("You gained a modest amount of experience through consistently training " ..
-                    skillSelection .. " for " .. modData.streak .. " days!")
+            if (modData.streak >= 3 and modData.streakSkill == skillSelection and config.streakBonus == true) then
+                if (modData.streak >= 3 and modData.streak < 7) then
+                    tes3.player.mobile:exerciseSkill(skillNumber, (config.expMod * 0.1))
+                    tes3.messageBox("You gained a little experience through consistently training " ..
+                        skillSelection .. " for " .. modData.streak .. " days!")
+                end
+                if (modData.streak >= 7 and modData.streak < 30) then
+                    tes3.player.mobile:exerciseSkill(skillNumber, ((config.expMod * 0.1) * 2))
+                    tes3.messageBox("You gained a fair amount of experience through consistently training " ..
+                        skillSelection .. " for " .. modData.streak .. " days!")
+                end
+                if (modData.streak >= 30 and modData.streak < 180) then
+                    tes3.player.mobile:exerciseSkill(skillNumber, ((config.expMod * 0.1) * 3))
+                    tes3.messageBox("You gained a modest amount of experience through consistently training " ..
+                        skillSelection .. " for " .. modData.streak .. " days!")
+                end
+                if (modData.streak >= 180 and modData.streak < 365) then
+                    tes3.player.mobile:exerciseSkill(skillNumber, ((config.expMod * 0.1) * 4))
+                    tes3.messageBox("You gained a considerable amount of experience through consistently training " ..
+                        skillSelection .. " for " .. modData.streak .. " days!")
+                end
+                if (modData.streak >= 365) then
+                    tes3.player.mobile:exerciseSkill(skillNumber, ((config.expMod * 0.1) * 5))
+                    tes3.messageBox("You gained a vast amount of experience through consistently training " ..
+                        skillSelection .. " for " .. modData.streak .. " days!")
+                end
+                log:debug("Streak bonus applied! " .. modData.streak .. " day streak!")
             end
-            if (modData.streak >= 180 and modData.streak < 365) then
-                tes3.player.mobile:exerciseSkill(skillNumber, 4)
-                tes3.messageBox("You gained a considerable amount of experience through consistently training " ..
-                    skillSelection .. " for " .. modData.streak .. " days!")
+            log:debug("Streak is " .. modData.streak .. ".")
+            if (modData.streakSkill == skillSelection) then
+                modData.lastTrained = 0
             end
-            if (modData.streak >= 365) then
-                tes3.player.mobile:exerciseSkill(skillNumber, 5)
-                tes3.messageBox("You gained a vast amount of experience through consistently training " ..
-                    skillSelection .. " for " .. modData.streak .. " days!")
+            --Finish Training-----------------------------------------
+            timer.start({ type = timer.real, duration = 1, callback = fadeIn })
+            if modData.noDupe == 0 then
+                modData.noDupe = 1
+                timer.start({ type = timer.game, duration = 1, iterations = -1, callback = "dailyTraining:loseStreak" })
+                log:debug("Streak loss timer began.")
             end
-            log:debug("Streak bonus applied! " .. modData.streak .. " day streak!")
-        end
-        log:debug("Streak is " .. modData.streak .. ".")
-        if (modData.streakSkill == skillSelection) then
-            modData.lastTrained = 0
-        end
-        --Finish Training-----------------------------------------
-        timer.start({ type = timer.real, duration = 1, callback = fadeIn })
-        if modData.noDupe == 0 then
-            modData.noDupe = 1
-            timer.start({ type = timer.game, duration = 1, iterations = -1, callback = "dailyTraining:loseStreak" })
-            log:debug("Streak loss timer began.")
         end
     end
 end
@@ -185,6 +406,9 @@ local function onSelect(i)
             costPerHr = math.round((skillStat.base * 0.1) * config.costMultH)
         end
         local cost = (costPerHr * hourText)
+        if config.trainCost == false then
+            cost = 0
+        end
         if (skillType == "health" or skillType == "fatigue") then
             local endLimit = math.round((tes3.mobilePlayer.endurance.current * 0.1) * (config.endMod * 0.1))
             label.text = "Endurance Session Hours: " .. endLimit .. ""
@@ -246,7 +470,7 @@ local function onOK(e)
                 end
             end
             --Willpower Limit?--
-            if (hourText > wilLimit and switch == 1) then
+            if (hourText > wilLimit and switch == 1 and config.sessionLimit == true) then
                 tes3.messageBox("You lack the will to train " .. skillSelection .. " beyond " .. wilLimit .. " hours.")
                 switch = 0
                 log:debug("You lack the will to train " .. skillSelection .. " beyond " .. wilLimit .. " hours.")
@@ -308,7 +532,7 @@ local function onOK(e)
                 end
             end
             --Endurance Limit?--
-            if (hourText > endLimit and switch == 1) then
+            if (hourText > endLimit and switch == 1 and config.sessionLimit == true) then
                 tes3.messageBox("You lack the endurance to train " ..
                     skillSelection .. " beyond " .. endLimit .. " hours.")
                 switch = 0
@@ -511,11 +735,6 @@ local function trainButton(e)
 end
 
 event.register(tes3.event.uiActivated, trainButton, { filter = "MenuRestWait" })
-
-
-
-
-
 
 --Config Stuff------------------------------------------------------------------------------------------------------------------------------
 event.register("modConfigReady", function()
