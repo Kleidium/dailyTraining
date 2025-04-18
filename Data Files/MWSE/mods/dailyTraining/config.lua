@@ -20,6 +20,7 @@ local defaultConfig = {
 	costMultF = 5,
 	attModifier = true,
 	weakSkill = 15,
+	weakMod = 50,
 	specSkills = true,
 	raceBonus = true,
 	miscPenalty = true,

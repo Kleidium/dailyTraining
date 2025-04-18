@@ -23,15 +23,19 @@ event.register("initialized", initialized)
 
 
 --IDs--------------------------------------------------------
-local id_menu = tes3ui.registerID("kl_train_menu")
-local id_label = tes3ui.registerID("kl_train_label_1")
-local id_label2 = tes3ui.registerID("kl_train_label_2")
-local id_label3 = tes3ui.registerID("kl_train_label_3")
-local id_label_exp = tes3ui.registerID("kl_train_label_exp")
-local id_pane = tes3ui.registerID("kl_train_pane")
-local id_ok = tes3ui.registerID("kl_train_ok")
-local id_cancel = tes3ui.registerID("kl_train_cancel")
-local id_fillMenu = tes3ui.registerID("kl_fill_menu")
+local id_menu = tes3ui.registerID("kl_daily_menu")
+local id_labelHour = tes3ui.registerID("kl_daily_labelHour")
+local id_labelProgress = tes3ui.registerID("kl_daily_labelProgress")
+local id_labelSession = tes3ui.registerID("kl_daily_labelSession")
+local id_labelSkill = tes3ui.registerID("kl_daily_labelSkill")
+local id_labelEfficiency = tes3ui.registerID("kl_daily_labelEfficiency")
+local id_blockInner = tes3ui.registerID("kl_daily_blockInner")
+local id_blockCombat = tes3ui.registerID("kl_daily_blockCombat")
+local id_blockMagic = tes3ui.registerID("kl_daily_blockMagic")
+local id_blockStealth = tes3ui.registerID("kl_daily_blockStealth")
+local id_btnOk = tes3ui.registerID("kl_daily_ok")
+local id_btnCancel = tes3ui.registerID("kl_daily_cancel")
+local id_fillBarMenu = tes3ui.registerID("kl_fill_menu")
 local id_fillBar = tes3ui.registerID("kl_fill_bar")
 
 
@@ -306,7 +310,7 @@ end
 
 --End Training------------------------------------------------
 local function fadeIn(e)
-    local menu = tes3ui.findMenu(id_fillMenu)
+    local menu = tes3ui.findMenu(id_fillBarMenu)
     menu:destroy()
     tes3ui.leaveMenuMode()
     if (config.playSound == true and skillNumber ~= 25 and skillNumber ~= 40) then
@@ -319,26 +323,37 @@ end
 --Training----------------------------------------------------
 local function trainTime()
     if ambushFlag == 1 then return end
-    if tes3ui.findMenu(id_fillMenu) == nil then return end
-    local menu = tes3ui.findMenu(id_fillMenu)
+    if tes3ui.findMenu(id_fillBarMenu) == nil then return end
+    
+    local menu = tes3ui.findMenu(id_fillBarMenu)
     local bar = menu:findChild(id_fillBar)
+    local modData = getModData(tes3.player)
     bar.widget.current = (bar.widget.current + 1)
     menu:updateLayout()
+
+    --Update Last Trained--
+    if (modData.streakSkill == skillSelection) then
+        modData.lastTrained = 0
+    end
+
     --Pass Time--
     local gameHour = tes3.getGlobal('GameHour')
     gameHour = gameHour + 1
     tes3.setGlobal('GameHour', gameHour)
+
     --Resource Drain--
     if config.trainCost == true then
-        tes3.modStatistic({ name = skillType, current = (costPerHr * -1), reference = tes3.mobilePlayer })
+        tes3.modStatistic({ name = skillType:lower(), current = (costPerHr * -1), reference = tes3.mobilePlayer })
     end
+
     --Novice Skill Bonus--
     local skillCheck = tes3.player.mobile:getSkillStatistic(skillNumber)
     local expBonus = 0.1
     if skillCheck.base < config.weakSkill then
-        expBonus = expBonus + 0.05
+        expBonus = expBonus + (config.weakMod / 1000)
         log:info("Novice bonus experience rewarded on " .. tes3.getSkillName(skillNumber) .. ".")
     end
+    
     --Racial Skill Bonus--
     local race = tes3.mobilePlayer.object.race
     if config.raceBonus == true then
@@ -369,7 +384,7 @@ local function trainTime()
     end
     --Endurance/Willpower Modifier--
     if config.attModifier == true then
-        if (skillType == "fatigue" or skillType == "health") then
+        if (skillType == "Fatigue" or skillType == "Health") then
             local endurance = tes3.mobilePlayer.endurance
             if endurance.current ~= endurance.base then
                 local modCalc = (((endurance.current / endurance.base) / 10) - 0.1)
@@ -423,11 +438,14 @@ local function trainTime()
         if specSwitch == 1 then
             tes3.player.mobile:exerciseSkill(skillNumber, (config.expMod * (expBonus + 0.025)))
             log:info("Specialization bonus experience rewarded on " .. tes3.getSkillName(skillNumber) .. ".")
+            log:info("" .. config.expMod * (expBonus + 0.025) .. " experience gained.")
         else
             tes3.player.mobile:exerciseSkill(skillNumber, (config.expMod * expBonus))
+            log:info("" .. config.expMod * expBonus .. " experience gained.")
         end
     else
         tes3.player.mobile:exerciseSkill(skillNumber, (config.expMod * expBonus))
+        log:info("" .. config.expMod * expBonus .. " experience gained.")
     end
     --Ambush Check--
     if config.ambush == true then
@@ -453,7 +471,6 @@ local function trainTime()
     end
     if bar.widget ~= nil then
         if (bar.widget.current == bar.widget.max) then
-            local modData = getModData(tes3.player)
             --Streak Check-----------------------------------------
             local added = 0
             if modData.streak == 0 then
@@ -503,7 +520,7 @@ local function trainTime()
             end
             --Attribute Burn--
             if config.skillBurn == true then
-                if (skillType == "fatigue" or skillType == "health") then
+                if (skillType == "Fatigue" or skillType == "Health") then
                     tes3.applyMagicSource({
                         reference = tes3.player,
                         name = "Training Fatigue",
@@ -543,74 +560,53 @@ end
 --On Skill Selection--------------------------------------------------------------
 local function onSelect(i)
     local menu = tes3ui.findMenu(id_menu)
-    local label = menu:findChild(id_label)
-    local label2 = menu:findChild(id_label2)
-    local label3 = menu:findChild(id_label3)
-    local labelE = menu:findChild(id_label_exp)
-    local pane = menu:findChild(id_pane)
-    local rMenu = tes3ui.findMenu("MenuRestWait")
-    hourText = tonumber(rMenu:findChild("MenuRestWait_hour_text").text)
-    local skillProg = tes3.mobilePlayer.skillProgress
+    local label = menu:findChild(id_labelSession)
+    local label2 = menu:findChild(id_labelProgress)
+    local labelE = menu:findChild(id_labelEfficiency)
+    local labelS = menu:findChild(id_labelSkill)
     local expAmount = 100
     if (menu) then
-        local id = pane:findChild("sTrainB_" .. i .. "")
+        local id = menu:findChild("sTrainB_" .. i .. "")
         --Change States
         for n = 0, 26 do
-            local id2 = pane:findChild("sTrainB_" .. n .. "")
+            local id2 = menu:findChild("sTrainB_" .. n .. "")
             if id2.widget.state == 4 then
                 id2.widget.state = 1
             end
         end
         id.widget.state = 4
-        --Take off unwanted part of string--
-        skillSelection = string.gsub(id.text,
-            "     " .. math.round((skillProg[i + 1] / tes3.mobilePlayer:getSkillProgressRequirement(i)) * 100) .. "%%",
-            "")
+        skillSelection = id.text
         --Determine Skill Type/Cost--
         skillNumber = i
-        skillType = "fatigue"
+        skillType = "Fatigue"
         local skillStat = tes3.player.mobile:getSkillStatistic(skillNumber)
         costPerHr = math.round((skillStat.base * 0.1) * config.costMultF)
         if (skillNumber >= 9 and skillNumber <= 15) then
-            skillType = "magicka"
+            skillType = "Magicka"
             costPerHr = math.round((skillStat.base * 0.1) * config.costMultM)
         end
         if (skillNumber == 2 or skillNumber == 3 or skillNumber == 17 or skillNumber == 21) then
-            skillType = "health"
+            skillType = "Health"
             costPerHr = math.round((skillStat.base * 0.1) * config.costMultH)
         end
         local cost = (costPerHr * hourText)
         if config.trainCost == false then
             cost = 0
         end
-        if (skillType == "health" or skillType == "fatigue") then
+        if (skillType == "Health" or skillType == "Fatigue") then
             local endLimit = math.round((tes3.mobilePlayer.endurance.current * 0.1) * (config.endMod * 0.1))
             label.text = "Endurance Session Hours: " .. endLimit .. ""
-            label2.text = "" .. skillSelection .. " " .. skillType .. " cost: " .. cost .. ""
+            label2.text = "" .. skillType .. " Cost: " .. cost .. ""
         else
             local wilLimit = math.round((tes3.mobilePlayer.willpower.current * 0.1) * (config.wilMod * 0.1))
             label.text = "Willpower Session Hours: " .. wilLimit .. ""
-            label2.text = "" .. skillSelection .. " " .. skillType .. " cost: " .. cost .. ""
+            label2.text = "" .. skillType .. " Cost: " .. cost .. ""
         end
-        --Town Training?--
-        if config.townTrain == false then
-            if config.townSkills == true then
-                label3.borderBottom = 5
-                if (
-                    skillNumber == 20 or skillNumber == 16 or skillNumber == 1 or skillNumber == 8 or skillNumber == 24
-                        or skillNumber == 18 or skillNumber == 19 or skillNumber == 25 or skillNumber == 9) then
-                    label3.text = "Trainable in town."
-                else
-                    label3.text = "Unable to train in town."
-                end
-            else
-                label3.text = "Unable to train in town."
-            end
-        end
+        labelS.text = "" .. skillSelection .. " " .. tes3.findGMST(tes3.gmst.sSkill).value .. ": " .. tes3.mobilePlayer:getSkillStatistic(skillNumber).base .. ""
         --Novice Skill?--
         local skillCheck = tes3.player.mobile:getSkillStatistic(skillNumber)
         if skillCheck.base < config.weakSkill then
-            expAmount = expAmount + 50
+            expAmount = expAmount + config.weakMod
         end
         --Racial Skill?--
         local race = tes3.mobilePlayer.object.race
@@ -641,7 +637,7 @@ local function onSelect(i)
         end
         --Endurance/Willpower Modifier--
         if config.attModifier == true then
-            if (skillType == "fatigue" or skillType == "health") then
+            if (skillType == "Fatigue" or skillType == "Health") then
                 local endurance = tes3.mobilePlayer.endurance
                 if endurance.current ~= endurance.base then
                     local modCalc = math.round((((endurance.current / endurance.base) / 10) - 0.1) * 1000)
@@ -712,12 +708,11 @@ local function onOK(e)
     end
     local menu = tes3ui.findMenu(id_menu)
     local rMenu = tes3ui.findMenu("MenuRestWait")
-    hourText = tonumber(rMenu:findChild("MenuRestWait_hour_text").text)
     local modData = getModData(tes3.player)
     local endLimit = math.round((tes3.mobilePlayer.endurance.current * 0.1) * (config.endMod * 0.1))
-    log:trace("Endurance Limit: " .. endLimit .. " hours.")
+    log:debug("Endurance Limit: " .. endLimit .. " hours.")
     local wilLimit = math.round((tes3.mobilePlayer.willpower.current * 0.1) * (config.wilMod * 0.1))
-    log:trace("Willpower Limit: " .. wilLimit .. " hours.")
+    log:debug("Willpower Limit: " .. wilLimit .. " hours.")
     local skillStat = tes3.player.mobile:getSkillStatistic(skillNumber)
     if (menu) then
         --Training Success Switch-----------------------------------------------------------------------------------------
@@ -781,7 +776,7 @@ local function onOK(e)
             end
             --Training Success--
             if switch == 1 then
-                skillType = "magicka"
+                skillType = "Magicka"
                 tes3ui.leaveMenuMode()
                 menu:destroy()
                 rMenu:destroy()
@@ -860,7 +855,7 @@ local function onOK(e)
                 log:debug("You lack the " ..
                     fatCost .. " stamina required to train " .. skillSelection .. " for that long.")
             end
-            if (tes3.mobilePlayer.health.current <= fatCost and switch == 1 and hthSwitch == 1) then
+            if (tes3.mobilePlayer.fatigue.current <= fatCost and switch == 1 and hthSwitch == 1) then
                 tes3.messageBox("You lack the " ..
                     fatCost .. " fortitude required to train " .. skillSelection .. " for that long.")
                 switch = 0
@@ -869,9 +864,9 @@ local function onOK(e)
             end
             --Training Success--
             if switch == 1 then
-                skillType = "fatigue"
+                skillType = "Fatigue"
                 if hthSwitch == 1 then
-                    skillType = "health"
+                    skillType = "Health"
                 end
                 tes3ui.leaveMenuMode()
                 menu:destroy()
@@ -881,7 +876,7 @@ local function onOK(e)
                     type = timer.game, persist = true })
                 log:debug("Cooldown began for " .. config.trainCDtime .. " hours.")
                 modData.cooldown = 1
-                local fillMenu = tes3ui.createMenu { id = id_fillMenu, fixedFrame = true }
+                local fillMenu = tes3ui.createMenu { id = id_fillBarMenu, fixedFrame = true }
                 local fillBar = fillMenu:createFillBar({ id = id_fillBar, current = 0, max = hourText })
                 fillBar.widget.showText = true
                 if hthSwitch == 0 then
@@ -909,63 +904,92 @@ local function trainMenu(e)
     local rMenu = tes3ui.findMenu("MenuRestWait")
     hourText = tonumber(rMenu:findChild("MenuRestWait_hour_text").text)
     skillNumber = 40
+
     -- Create window and frame
-    local menu = tes3ui.createMenu { id = id_menu, fixedFrame = true }
+    local menu = tes3ui.createMenu { id = id_menu, fixedFrame = true, modal = true }
+    menu.alpha = 1.0
 
     -- Create layout
-    local input_label = menu:createLabel { id = id_label, text = "You decide to train for " .. hourText .. " hours." }
-    local input_label2 = menu:createLabel { id = id_label2, text = "Select skill to train." }
-    local input_label3 = menu:createLabel { id = id_label3, text = "" }
+    local hourLabel = menu:createLabel { id = id_labelHour, text = "You decided to train for " .. hourText .. " hours." }
+    if hourText == 1 then
+        hourLabel.text = "You decided to train for " .. hourText .. " hour."
+    end
+    hourLabel.borderBottom = 10
 
-    local pane_block = menu:createBlock { id = "pane_block" }
-    pane_block.autoWidth = true
-    pane_block.autoHeight = true
-    pane_block.flowDirection = "top_to_bottom"
+    local main_block = menu:createBlock { id = "main_block" }
+    main_block.autoWidth = true
+    main_block.autoHeight = true
+    main_block.flowDirection = "top_to_bottom"
 
-    local border = pane_block:createThinBorder { id = "kl_border" }
-    border.positionX = 4
-    border.positionY = -4
-    border.width = 220
-    border.height = 480
-    border.borderAllSides = 4
+    local bord = main_block:createThinBorder {}
+    bord.width = 673
+    bord.height = 197
+    bord.borderBottom = 20
+    bord.paddingAllSides = 2
+    local border = bord:createThinBorder { id = "kl_border" }
+    border.width = 669
+    border.height = 193
     border.paddingAllSides = 4
 
-    local pane = border:createVerticalScrollPane { id = id_pane }
-    pane.height = 480
-    pane.width = 220
-    pane.positionX = 4
-    pane.positionY = -4
-    pane.widget.scrollbarVisible = true
+    local inner = border:createBlock { id = id_blockInner }
+    inner.height = 192
+    inner.width = 668
+    inner.paddingAllSides = 10
+    inner.flowDirection = "left_to_right"
+
+    local combat = inner:createBlock { id = id_blockCombat }
+    combat.height = 192
+    combat.width = 150
+    combat.flowDirection = "top_to_bottom"
+
+    local cPer = inner:createBlock {}
+    cPer.flowDirection = "top_to_bottom"
+    cPer.height = 192
+    cPer.width = 40
+
+    local magic = inner:createBlock { id = id_blockMagic }
+    magic.height = 192
+    magic.width = 150
+    magic.borderLeft = 40
+    magic.flowDirection = "top_to_bottom"
+
+    local mPer = inner:createBlock {}
+    mPer.flowDirection = "top_to_bottom"
+    mPer.height = 192
+    mPer.width = 40
+    mPer.borderRight = 40
+
+    local stealth = inner:createBlock { id = id_blockStealth }
+    stealth.height = 192
+    stealth.width = 150
+    stealth.flowDirection = "top_to_bottom"
+
+    local sPer = inner:createBlock {}
+    sPer.flowDirection = "top_to_bottom"
+    sPer.height = 192
+    sPer.width = 40
 
     --Skill List--
     local skillProg = tes3.mobilePlayer.skillProgress
     for i = 0, 8 do
-        local b = pane:createTextSelect { text = "" ..
-            tes3.skillName[i] ..
-            "     " .. math.round((skillProg[i + 1] / tes3.mobilePlayer:getSkillProgressRequirement(i)) * 100) .. "%",
-            id = "sTrainB_" .. i .. "" }
+        local b = combat:createTextSelect { text = "" .. tes3.skillName[i] .. "", id = "sTrainB_" .. i .. "" }
+        local p = cPer:createLabel { text = "" .. math.round((skillProg[i + 1] / tes3.mobilePlayer:getSkillProgressRequirement(i)) * 100) .. "%", id = "sTrainP_" .. i .. "" }
         if config.noColor == false then
             b.widget.idleActive = { 0.6, 0.6, 0.0 }
         end
         b:register("mouseClick", function() onSelect(i) end)
     end
-    local line = pane:createDivider()
     for i = 9, 17 do
-        local b = pane:createTextSelect { text = "" ..
-            tes3.skillName[i] ..
-            "     " .. math.round((skillProg[i + 1] / tes3.mobilePlayer:getSkillProgressRequirement(i)) * 100) .. "%",
-            id = "sTrainB_" .. i .. "" }
+        local b = magic:createTextSelect { text = "" .. tes3.skillName[i] .. "", id = "sTrainB_" .. i .. "" }
+        local p = mPer:createLabel { text = "" .. math.round((skillProg[i + 1] / tes3.mobilePlayer:getSkillProgressRequirement(i)) * 100) .. "%", id = "sTrainP_" .. i .. "" }
         if config.noColor == false then
             b.widget.idleActive = { 0.6, 0.6, 0.0 }
         end
         b:register("mouseClick", function() onSelect(i) end)
     end
-    local line2 = pane:createDivider()
     for i = 18, 26 do
-        local b = pane:createTextSelect { text = "" ..
-            tes3.skillName[i] ..
-            "     " .. math.round((skillProg[i + 1] / tes3.mobilePlayer:getSkillProgressRequirement(i)) * 100) .. "%",
-            id = "sTrainB_" .. i .. "" }
+        local b = stealth:createTextSelect { text = "" .. tes3.skillName[i] .. "", id = "sTrainB_" .. i .. "" }
+        local p = sPer:createLabel { text = "" .. math.round((skillProg[i + 1] / tes3.mobilePlayer:getSkillProgressRequirement(i)) * 100) .. "%", id = "sTrainP_" .. i .. "" }
         if config.noColor == false then
             b.widget.idleActive = { 0.6, 0.6, 0.0 }
         end
@@ -975,59 +999,128 @@ local function trainMenu(e)
     --Colorize--
     if config.noColor == false then
         for i = 9, 15 do
-            local b = pane:findChild("sTrainB_" .. i .. "")
+            local b = inner:findChild("sTrainB_" .. i .. "")
+            local p = inner:findChild("sTrainP_" .. i .. "")
             b.widget.idle = { 0.3, 0.3, 0.7 }
+            p.color = { 0.3, 0.3, 0.7 }
         end
 
         for i = 2, 3 do
-            local b = pane:findChild("sTrainB_" .. i .. "")
+            local b = inner:findChild("sTrainB_" .. i .. "")
+            local p = inner:findChild("sTrainP_" .. i .. "")
             b.widget.idle = { 0.6, 0.2, 0.2 }
+            p.color = { 0.6, 0.2, 0.2 }
         end
 
-        local c = pane:findChild("sTrainB_21")
+        local c = inner:findChild("sTrainB_21")
+        local p_1 = inner:findChild("sTrainP_21")
         c.widget.idle = { 0.6, 0.2, 0.2 }
+        p_1.color = { 0.6, 0.2, 0.2 }
 
-        local c_2 = pane:findChild("sTrainB_17")
+        local c_2 = inner:findChild("sTrainB_17")
+        local p_2 = inner:findChild("sTrainP_17")
         c_2.widget.idle = { 0.6, 0.2, 0.2 }
+        p_2.color = { 0.6, 0.2, 0.2 }
 
         for i = 0, 1 do
-            local b = pane:findChild("sTrainB_" .. i .. "")
+            local b = inner:findChild("sTrainB_" .. i .. "")
+            local p = inner:findChild("sTrainP_" .. i .. "")
             b.widget.idle = { 0.2, 0.6, 0.2 }
+            p.color = { 0.2, 0.6, 0.2 }
         end
 
         for i = 4, 8 do
-            local b = pane:findChild("sTrainB_" .. i .. "")
+            local b = inner:findChild("sTrainB_" .. i .. "")
+            local p = inner:findChild("sTrainP_" .. i .. "")
             b.widget.idle = { 0.2, 0.6, 0.2 }
+            p.color = { 0.2, 0.6, 0.2 }
         end
 
         for i = 18, 20 do
-            local b = pane:findChild("sTrainB_" .. i .. "")
+            local b = inner:findChild("sTrainB_" .. i .. "")
+            local p = inner:findChild("sTrainP_" .. i .. "")
             b.widget.idle = { 0.2, 0.6, 0.2 }
+            p.color = { 0.2, 0.6, 0.2 }
         end
 
         for i = 22, 26 do
-            local b = pane:findChild("sTrainB_" .. i .. "")
+            local b = inner:findChild("sTrainB_" .. i .. "")
+            local p = inner:findChild("sTrainP_" .. i .. "")
             b.widget.idle = { 0.2, 0.6, 0.2 }
+            p.color = { 0.2, 0.6, 0.2 }
         end
 
-        local c_3 = pane:findChild("sTrainB_16")
+        local c_3 = inner:findChild("sTrainB_16")
+        local p_3 = inner:findChild("sTrainP_16")
         c_3.widget.idle = { 0.2, 0.6, 0.2 }
+        p_3.color = { 0.2, 0.6, 0.2 }
     end
 
-    --Streak/Bonus Info--
-    local expBonusLabel = pane_block:createLabel({ id = id_label_exp, text = "Experience Efficiency:" })
-    local streakLabel = pane_block:createLabel({ text = "Streak Skill: " .. modData.streakSkill .. "" })
-    local streakTotal = pane_block:createLabel({ text = "Streak Amount: " .. modData.streak .. " days." })
+    if config.townTrain == false and tes3.getPlayerCell().restingIsIllegal then
+        if config.townSkills == true then
+            for i = 0, 26 do
+                if (i == 20 or i == 16 or i == 1 or i == 8 or i == 24 or i == 18 or i == 19 or i == 25 or i == 9) then
+                    --do nothing
+                else
+                    local b = menu:findChild("sTrainB_" .. i .. "")
+                    b.disabled = true
+                    b.widget.state = tes3.uiState.disabled
+                    local p = menu:findChild("sTrainP_" .. i .. "")
+                    p.color = { 0.702, 0.659, 0.529 }
+                end
+            end
+        else
+            for i = 0, 26 do
+                local b = menu:findChild("sTrainB_" .. i .. "")
+                b.disabled = true
+                b.widget.state = tes3.uiState.disabled
+                local p = menu:findChild("sTrainP_" .. i .. "")
+                p.color = { 0.702, 0.659, 0.529 }
+            end
+        end
+    end
+
+    --Skill Info--
+    local skillLabel = main_block:createLabel { id = id_labelSkill, text = "Select skill to train." }
+    skillLabel.wrapText = true
+    skillLabel.justifyText = tes3.justifyText.center
+    if config.townTrain == false then
+        skillLabel.text = "Unable to train in public."
+        if config.townSkills == true then
+            skillLabel.text = "Select public skill to train."
+        end
+    end
+    local selectLabel = main_block:createLabel { id = id_labelProgress, text = " " }
+    selectLabel.wrapText = true
+    selectLabel.justifyText = tes3.justifyText.center
+    local expBonusLabel = main_block:createLabel({ id = id_labelEfficiency, text = " " })
+    expBonusLabel.wrapText = true
+    expBonusLabel.justifyText = tes3.justifyText.center
+    local sesLabel = main_block:createLabel { id = id_labelSession, text = " " }
+    sesLabel.wrapText = true
+    sesLabel.justifyText = tes3.justifyText.center
+
+    local line = main_block:createDivider()
+    line.borderTop = 10
+    line.borderBottom = 9
+
+    --Streak Info--
+    local streakLabel = main_block:createLabel({ text = "Streak Skill: " .. modData.streakSkill .. "" })
+    streakLabel.wrapText = true
+    streakLabel.justifyText = tes3.justifyText.center
+    local streakTotal = main_block:createLabel({ text = "Streak Amount: " .. modData.streak .. " days" })
+    streakTotal.wrapText = true
+    streakTotal.justifyText = tes3.justifyText.center
 
     --Buttons--
     local button_block = menu:createBlock {}
     button_block.widthProportional = 1.0 -- width is 100% parent width
     button_block.autoHeight = true
     button_block.childAlignX = 1.0 -- right content alignment
-    button_block.borderTop = 5
+    button_block.borderTop = 25
 
-    local button_ok = button_block:createButton { id = id_ok, text = tes3.findGMST("sOK").value }
-    local button_cancel = button_block:createButton { id = id_cancel, text = tes3.findGMST("sCancel").value }
+    local button_ok = button_block:createButton { id = id_btnOk, text = tes3.findGMST("sOK").value }
+    local button_cancel = button_block:createButton { id = id_btnCancel, text = tes3.findGMST("sCancel").value }
 
     -- Events
     menu:register(tes3.uiEvent.keyEnter, onOK)
@@ -1039,13 +1132,14 @@ local function trainMenu(e)
     tes3ui.enterMenuMode(id_menu)
 end
 
+
 --Rest Menu Training Button------------------------------------------------------------------------------
 local function trainButton(e)
     local window = e.element:findChild(tes3ui.registerID("MenuRestWait"))
     local windowC = window:findChild(tes3ui.registerID("PartNonDragMenu_main"))
     windowC.minWidth = 312
     local windowB = e.element:findChild(tes3ui.registerID("MenuRestWait_buttonlayout"))
-    local tButton = windowB:createButton({ id = "kl_train_button_id", text = "Train" })
+    local tButton = windowB:createButton({ id = "kl_daily_button_id", text = "Train" })
     tButton.borderAllSides = 0
     tButton.borderLeft = 3
     windowB:reorderChildren(-2, -1, 1)
@@ -1054,6 +1148,8 @@ local function trainButton(e)
 end
 
 event.register(tes3.event.uiActivated, trainButton, { filter = "MenuRestWait" })
+
+
 
 
 

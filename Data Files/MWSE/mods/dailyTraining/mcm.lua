@@ -164,8 +164,8 @@ local expSettings = settings:createCategory("Experience Settings")
 
 expSettings:createSlider {
     label = "Experience Ratio",
-    description = "This affects the amount of experience gained per hour trained. 1 is very low and 50 is rather high. Default: 6",
-    max = 50,
+    description = "This affects the amount of experience gained per hour trained. 1 is very low and 100 is high. Default: 6",
+    max = 100,
     min = 1,
     variable = EasyMCM:createTableVariable {
         id = "expMod",
@@ -187,11 +187,22 @@ expSettings:createOnOffButton {
 
 expSettings:createSlider {
     label = "Novice Skill Bonus",
-    description = "Skills below this skill level gain +50% extra experience per hour. Does not stack with streak bonuses. Set to 0 if you don't want novice skill experience bonuses. Default: 15",
+    description = "Skills below this skill level gain extra experience per hour. Does not stack with streak bonuses. Set to 0 if you don't want novice skill experience bonuses. Default: 15",
     max = 100,
     min = 0,
     variable = EasyMCM:createTableVariable {
         id = "weakSkill",
+        table = config
+    }
+}
+
+expSettings:createSlider {
+    label = "Novice Skill Rate",
+    description = "Controls the amount of additional experience that novice skills gain. Does not stack with streak bonuses. Default: 50% experience bonus",
+    max = 1000,
+    min = 1,
+    variable = EasyMCM:createTableVariable {
+        id = "weakMod",
         table = config
     }
 }

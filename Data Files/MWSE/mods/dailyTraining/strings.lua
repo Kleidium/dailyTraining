@@ -36,7 +36,13 @@ stuff.cdFlavor = {
     [31] = "A few insights were gained since you last trained. Why not learn to apply them now?",
     [32] = "The path to mastery lies ahead. All you need do is continue your training.",
     [33] = "Now may be a good time to go through some exercises.",
-    [34] = "You wonder if you should go over what you've learned once again."
+    [34] = "You wonder if you should go over what you've learned once again.",
+    [35] = "Some training would do you some good...",
+    [36] = "Studying sometime soon might prove useful.",
+    [37] = "You're prepared to train again.",
+    [38] = "Time to practice.",
+    [39] = "You feel willing to commit to some more training soon.",
+    [40] = "There could be a nice spot to practice nearby."
 }
 
 stuff.scribFlavor = {
