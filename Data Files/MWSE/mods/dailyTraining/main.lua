@@ -2,6 +2,7 @@
 local config = require("dailyTraining.config")
 local strings = require("dailyTraining.strings")
 local logger = require("logging.logger")
+local msgBox = include("messageBox.box") --interop
 local skillSelection = ""
 local skillNumber = 40
 local skillType = ""
@@ -58,7 +59,11 @@ end
 local function cooldownElapsed()
     local modData = getModData(tes3.player)
     if (config.trainCD == true and config.cdMessages == true and modData.cooldown == 1) then
-        tes3.messageBox("" .. strings.cdFlavor[math.random(1, 34)] .. "")
+        if msgBox then
+            msgBox.logMessage("" .. strings.cdFlavor[math.random(1, 34)] .. "", { msgBox.config.dtRed, msgBox.config.dtGreen, msgBox.config.dtBlue })
+        else
+            tes3.messageBox("" .. strings.cdFlavor[math.random(1, 34)] .. "")
+        end
     end
     modData.cooldown = 0
     log:debug("Training cooldown elapsed.")
@@ -75,7 +80,11 @@ local function loseStreak()
     log:debug("" .. modData.dayCheck .. " hours on dayCheck.")
     if (modData.lastTrained >= config.gracePeriod and modData.streak > 0) then
         modData.streak = 0
-        tes3.messageBox("" .. modData.streakSkill .. " training streak lost!")
+        if msgBox then
+            msgBox.logMessage("" .. modData.streakSkill .. " training streak lost!", { msgBox.config.dtRed, msgBox.config.dtGreen, msgBox.config.dtBlue })
+        else
+            tes3.messageBox("" .. modData.streakSkill .. " training streak lost!")
+        end
         modData.streakSkill = ""
         log:info("Training streak lost!")
     end
@@ -195,7 +204,11 @@ local function ambush()
             spawns = spawns + 1
             log:debug("Ashlands creature spawned!")
             if string.startswith(ref.id, "scrib") then
-                tes3.messageBox(strings.scribFlavor[math.random(1, 13)])
+                if msgBox then
+                    msgBox.logMessage(strings.scribFlavor[math.random(1, 13)], { msgBox.config.dtRed, msgBox.config.dtGreen, msgBox.config.dtBlue })
+                else
+                    tes3.messageBox(strings.scribFlavor[math.random(1, 13)])
+                end
                 modData.cooldown = 0
             end
         end
@@ -206,7 +219,11 @@ local function ambush()
             spawns = spawns + 1
             log:debug("Ascadian Isles creature spawned!")
             if string.startswith(ref.id, "scrib") then
-                tes3.messageBox(strings.scribFlavor[math.random(1, 13)])
+                if msgBox then
+                    msgBox.logMessage(strings.scribFlavor[math.random(1, 13)], { msgBox.config.dtRed, msgBox.config.dtGreen, msgBox.config.dtBlue })
+                else
+                    tes3.messageBox(strings.scribFlavor[math.random(1, 13)])
+                end
                 modData.cooldown = 0
             end
         end
@@ -217,7 +234,11 @@ local function ambush()
             spawns = spawns + 1
             log:debug("Azura's Coast creature spawned!")
             if string.startswith(ref.id, "scrib") then
-                tes3.messageBox(strings.scribFlavor[math.random(1, 13)])
+                if msgBox then
+                    msgBox.logMessage(strings.scribFlavor[math.random(1, 13)], { msgBox.config.dtRed, msgBox.config.dtGreen, msgBox.config.dtBlue })
+                else
+                    tes3.messageBox(strings.scribFlavor[math.random(1, 13)])
+                end
                 modData.cooldown = 0
             end
         end
@@ -228,7 +249,11 @@ local function ambush()
             spawns = spawns + 1
             log:debug("Bitter Coast creature spawned!")
             if string.startswith(ref.id, "scrib") then
-                tes3.messageBox(strings.scribFlavor[math.random(1, 13)])
+                if msgBox then
+                    msgBox.logMessage(strings.scribFlavor[math.random(1, 13)], { msgBox.config.dtRed, msgBox.config.dtGreen, msgBox.config.dtBlue })
+                else
+                    tes3.messageBox(strings.scribFlavor[math.random(1, 13)])
+                end
                 modData.cooldown = 0
             end
         end
@@ -246,7 +271,11 @@ local function ambush()
             spawns = spawns + 1
             log:debug("Molag Amur creature spawned!")
             if string.startswith(ref.id, "scrib") then
-                tes3.messageBox(strings.scribFlavor[math.random(1, 13)])
+                if msgBox then
+                    msgBox.logMessage(strings.scribFlavor[math.random(1, 13)], { msgBox.config.dtRed, msgBox.config.dtGreen, msgBox.config.dtBlue })
+                else
+                    tes3.messageBox(strings.scribFlavor[math.random(1, 13)])
+                end
                 modData.cooldown = 0
             end
         end
@@ -264,7 +293,11 @@ local function ambush()
             spawns = spawns + 1
             log:debug("Sheogorad creature spawned!")
             if string.startswith(ref.id, "scrib") then
-                tes3.messageBox(strings.scribFlavor[math.random(1, 13)])
+                if msgBox then
+                    msgBox.logMessage(strings.scribFlavor[math.random(1, 13)], { msgBox.config.dtRed, msgBox.config.dtGreen, msgBox.config.dtBlue })
+                else
+                    tes3.messageBox(strings.scribFlavor[math.random(1, 13)])
+                end
                 modData.cooldown = 0
             end
         end
@@ -275,7 +308,11 @@ local function ambush()
             spawns = spawns + 1
             log:debug("West Gash creature spawned!")
             if string.startswith(ref.id, "scrib") then
-                tes3.messageBox(strings.scribFlavor[math.random(1, 13)])
+                if msgBox then
+                    msgBox.logMessage(strings.scribFlavor[math.random(1, 13)], { msgBox.config.dtRed, msgBox.config.dtGreen, msgBox.config.dtBlue })
+                else
+                    tes3.messageBox(strings.scribFlavor[math.random(1, 13)])
+                end
                 modData.cooldown = 0
             end
         end
@@ -293,7 +330,11 @@ local function ambush()
             spawns = spawns + 1
             log:debug("Generic exterior creature spawned!")
             if string.startswith(ref.id, "scrib") then
-                tes3.messageBox(strings.scribFlavor[math.random(1, 13)])
+                if msgBox then
+                    msgBox.logMessage(strings.scribFlavor[math.random(1, 13)], { msgBox.config.dtRed, msgBox.config.dtGreen, msgBox.config.dtBlue })
+                else
+                    tes3.messageBox(strings.scribFlavor[math.random(1, 13)])
+                end
                 modData.cooldown = 0
             end
         end
