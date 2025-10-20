@@ -343,7 +343,11 @@ local function ambush()
         timer.delayOneFrame(function()
             timer.delayOneFrame(function()
                 ambushFlag = 0
-                tes3.messageBox("Your training has been interrupted.")
+                if msgBox then
+                    msgBox.logMessage("Your training has been interrupted.", { msgBox.config.dtRed, msgBox.config.dtGreen, msgBox.config.dtBlue })
+                else
+                    tes3.messageBox("Your training has been interrupted.")
+                end
             end)
         end)
     end)
@@ -530,28 +534,43 @@ local function trainTime()
             if (modData.streak >= 3 and modData.streakSkill == skillSelection and config.streakBonus == true) then
                 if (modData.streak >= 3 and modData.streak < 7) then
                     tes3.player.mobile:exerciseSkill(skillNumber, (config.expMod * 0.1))
-                    tes3.messageBox("You gained a little experience through consistently training " ..
-                        skillSelection .. " for " .. modData.streak .. " days!")
+                    if msgBox then
+                        msgBox.logMessage("You gained a little experience through consistently training " .. skillSelection .. " for " .. modData.streak .. " days!", { msgBox.config.dtRed, msgBox.config.dtGreen, msgBox.config.dtBlue })
+                    else
+                        tes3.messageBox("You gained a little experience through consistently training " .. skillSelection .. " for " .. modData.streak .. " days!")
+                    end
                 end
                 if (modData.streak >= 7 and modData.streak < 30) then
                     tes3.player.mobile:exerciseSkill(skillNumber, ((config.expMod * 0.1) * 2))
-                    tes3.messageBox("You gained a fair amount of experience through consistently training " ..
-                        skillSelection .. " for " .. modData.streak .. " days!")
+                    if msgBox then
+                        msgBox.logMessage("You gained a fair amount of experience through consistently training " .. skillSelection .. " for " .. modData.streak .. " days!", { msgBox.config.dtRed, msgBox.config.dtGreen, msgBox.config.dtBlue })
+                    else
+                        tes3.messageBox("You gained a fair amount of experience through consistently training " .. skillSelection .. " for " .. modData.streak .. " days!")
+                    end
                 end
                 if (modData.streak >= 30 and modData.streak < 180) then
                     tes3.player.mobile:exerciseSkill(skillNumber, ((config.expMod * 0.1) * 3))
-                    tes3.messageBox("You gained a modest amount of experience through consistently training " ..
-                        skillSelection .. " for " .. modData.streak .. " days!")
+                    if msgBox then
+                        msgBox.logMessage("You gained a modest amount of experience through consistently training " .. skillSelection .. " for " .. modData.streak .. " days!", { msgBox.config.dtRed, msgBox.config.dtGreen, msgBox.config.dtBlue })
+                    else
+                        tes3.messageBox("You gained a modest amount of experience through consistently training " .. skillSelection .. " for " .. modData.streak .. " days!")
+                    end
                 end
                 if (modData.streak >= 180 and modData.streak < 365) then
                     tes3.player.mobile:exerciseSkill(skillNumber, ((config.expMod * 0.1) * 4))
-                    tes3.messageBox("You gained a considerable amount of experience through consistently training " ..
-                        skillSelection .. " for " .. modData.streak .. " days!")
+                    if msgBox then
+                        msgBox.logMessage("You gained a considerable amount of experience through consistently training " .. skillSelection .. " for " .. modData.streak .. " days!", { msgBox.config.dtRed, msgBox.config.dtGreen, msgBox.config.dtBlue })
+                    else
+                        tes3.messageBox("You gained a considerable amount of experience through consistently training " .. skillSelection .. " for " .. modData.streak .. " days!")
+                    end
                 end
                 if (modData.streak >= 365) then
                     tes3.player.mobile:exerciseSkill(skillNumber, ((config.expMod * 0.1) * 5))
-                    tes3.messageBox("You gained a vast amount of experience through consistently training " ..
-                        skillSelection .. " for " .. modData.streak .. " days!")
+                    if msgBox then
+                        msgBox.logMessage("You gained a vast amount of experience through consistently training " .. skillSelection .. " for " .. modData.streak .. " days!", { msgBox.config.dtRed, msgBox.config.dtGreen, msgBox.config.dtBlue })
+                    else
+                        tes3.messageBox("You gained a vast amount of experience through consistently training " .. skillSelection .. " for " .. modData.streak .. " days!")
+                    end
                 end
                 log:info("Streak bonus applied! " .. modData.streak .. " day streak!")
             end
@@ -744,7 +763,11 @@ end
 --On Menu OK-----------------------------------------------------------------------------------------------
 local function onOK(e)
     if skillNumber == 40 then
-        tes3.messageBox("Please select a skill.")
+        if msgBox then
+            msgBox.logMessage("Please select a skill.", { msgBox.config.dtRed, msgBox.config.dtGreen, msgBox.config.dtBlue })
+        else
+            tes3.messageBox("Please select a skill.")
+        end
         return
     end
     local menu = tes3ui.findMenu(id_menu)
@@ -764,7 +787,11 @@ local function onOK(e)
             log:debug("Magic skill selected. Skill Number: " .. skillNumber .. "")
             --Cooldown--
             if (modData.cooldown == 1 and config.trainCD == true) then
-                tes3.messageBox("You require rest before training again.")
+                if msgBox then
+                    msgBox.logMessage("You require rest before training again.", { msgBox.config.dtRed, msgBox.config.dtGreen, msgBox.config.dtBlue })
+                else
+                    tes3.messageBox("You require rest before training again.")
+                end
                 switch = 0
                 log:info("Training still on cooldown.")
             end
@@ -774,7 +801,11 @@ local function onOK(e)
                 if cell.restingIsIllegal then
                     --Is skill not a town skill?--
                     if skillNumber ~= 9 then
-                        tes3.messageBox("You cannot train " .. tes3.getSkillName(skillNumber) .. " in public areas!")
+                        if msgBox then
+                            msgBox.logMessage("You cannot train " .. tes3.getSkillName(skillNumber) .. " in public areas!", { msgBox.config.dtRed, msgBox.config.dtGreen, msgBox.config.dtBlue })
+                        else
+                            tes3.messageBox("You cannot train " .. tes3.getSkillName(skillNumber) .. " in public areas!")
+                        end
                         switch = 0
                         log:debug("Cannot train " .. tes3.getSkillName(skillNumber) .. " in public areas!")
                     end
@@ -783,7 +814,11 @@ local function onOK(e)
             if (config.townTrain == false and config.townSkills == false and switch == 1) then
                 local cell = tes3.getPlayerCell()
                 if cell.restingIsIllegal then
-                    tes3.messageBox("You cannot train in public areas!")
+                    if msgBox then
+                        msgBox.logMessage("You cannot train in public areas!", { msgBox.config.dtRed, msgBox.config.dtGreen, msgBox.config.dtBlue })
+                    else
+                        tes3.messageBox("You cannot train in public areas!")
+                    end
                     switch = 0
                     log:debug("Cannot train in public areas!")
                 end
@@ -791,15 +826,22 @@ local function onOK(e)
             --Skill Limit?--
             if (config.skillLimit == true and switch == 1) then
                 if (skillStat.base >= config.skillMax) then
-                    tes3.messageBox("You're too knowledgeable to train the " ..
-                        skillSelection .. " skill through simple practice!")
+                    if msgBox then
+                        msgBox.logMessage("You're too knowledgeable to train the " .. skillSelection .. " skill through simple practice!", { msgBox.config.dtRed, msgBox.config.dtGreen, msgBox.config.dtBlue })
+                    else
+                        tes3.messageBox("You're too knowledgeable to train the " .. skillSelection .. " skill through simple practice!")
+                    end
                     switch = 0
                     log:debug("Cannot train expert skill! Skill Number: " .. skillNumber .. "")
                 end
             end
             --Willpower Limit?--
             if (hourText > wilLimit and switch == 1 and config.sessionLimit == true) then
-                tes3.messageBox("You lack the will to train " .. skillSelection .. " beyond " .. wilLimit .. " hours.")
+                if msgBox then
+                    msgBox.logMessage("You lack the will to train " .. skillSelection .. " beyond " .. wilLimit .. " hours.", { msgBox.config.dtRed, msgBox.config.dtGreen, msgBox.config.dtBlue })
+                else
+                    tes3.messageBox("You lack the will to train " .. skillSelection .. " beyond " .. wilLimit .. " hours.")
+                end
                 switch = 0
                 log:debug("You lack the will to train " .. skillSelection .. " beyond " .. wilLimit .. " hours.")
             end
@@ -809,11 +851,13 @@ local function onOK(e)
             local mgkCost = (hourText * costPerHr)
             log:trace("Total Magicka cost calculated as " .. mgkCost .. ".")
             if (tes3.mobilePlayer.magicka.current < mgkCost and switch == 1) then
-                tes3.messageBox("You lack the " ..
-                    mgkCost .. " magicka required to train " .. skillSelection .. " for that long.")
+                if msgBox then
+                    msgBox.logMessage("You lack the " .. mgkCost .. " magicka required to train " .. skillSelection .. " for that long.", { msgBox.config.dtRed, msgBox.config.dtGreen, msgBox.config.dtBlue })
+                else
+                    tes3.messageBox("You lack the " .. mgkCost .. " magicka required to train " .. skillSelection .. " for that long.")
+                end
                 switch = 0
-                log:debug("You lack the " ..
-                    mgkCost .. " magicka required to train " .. skillSelection .. " for that long.")
+                log:debug("You lack the " .. mgkCost .. " magicka required to train " .. skillSelection .. " for that long.")
             end
             --Training Success--
             if switch == 1 then
@@ -837,7 +881,11 @@ local function onOK(e)
             log:debug("Non-magic skill selected. Skill Number: " .. skillNumber .. "")
             --Cooldown--
             if (modData.cooldown == 1 and config.trainCD == true) then
-                tes3.messageBox("You require rest before training again.")
+                if msgBox then
+                    msgBox.logMessage("You require rest before training again.", { msgBox.config.dtRed, msgBox.config.dtGreen, msgBox.config.dtBlue })
+                else
+                    tes3.messageBox("You require rest before training again.")
+                end
                 switch = 0
                 log:debug("Training still on cooldown.")
             end
@@ -846,10 +894,12 @@ local function onOK(e)
                 local cell = tes3.getPlayerCell()
                 if cell.restingIsIllegal then
                     --Is skill not a town skill?--
-                    if (
-                        skillNumber ~= 20 and skillNumber ~= 16 and skillNumber ~= 1 and skillNumber ~= 8 and
-                            skillNumber ~= 24 and skillNumber ~= 18 and skillNumber ~= 19 and skillNumber ~= 25) then
-                        tes3.messageBox("You cannot train " .. tes3.getSkillName(skillNumber) .. " in public areas!")
+                    if (skillNumber ~= 20 and skillNumber ~= 16 and skillNumber ~= 1 and skillNumber ~= 8 and skillNumber ~= 24 and skillNumber ~= 18 and skillNumber ~= 19 and skillNumber ~= 25) then
+                        if msgBox then
+                            msgBox.logMessage("You cannot train " .. tes3.getSkillName(skillNumber) .. " in public areas!", { msgBox.config.dtRed, msgBox.config.dtGreen, msgBox.config.dtBlue })
+                        else
+                            tes3.messageBox("You cannot train " .. tes3.getSkillName(skillNumber) .. " in public areas!")
+                        end
                         switch = 0
                         log:debug("Cannot train " .. tes3.getSkillName(skillNumber) .. " in public areas!")
                     end
@@ -858,7 +908,11 @@ local function onOK(e)
             if (config.townTrain == false and config.townSkills == false and switch == 1) then
                 local cell = tes3.getPlayerCell()
                 if cell.restingIsIllegal then
-                    tes3.messageBox("You cannot train in public areas!")
+                    if msgBox then
+                        msgBox.logMessage("You cannot train in public areas!", { msgBox.config.dtRed, msgBox.config.dtGreen, msgBox.config.dtBlue })
+                    else
+                        tes3.messageBox("You cannot train in public areas!")
+                    end
                     switch = 0
                     log:debug("Cannot train in public areas!")
                 end
@@ -866,16 +920,22 @@ local function onOK(e)
             --Skill Limit?--
             if (config.skillLimit == true and switch == 1) then
                 if (skillStat.base >= config.skillMax) then
-                    tes3.messageBox("You're too knowledgeable to train the " ..
-                        skillSelection .. " skill through simple practice!")
+                    if msgBox then
+                        msgBox.logMessage("You're too knowledgeable to train the " .. skillSelection .. " skill through simple practice!", { msgBox.config.dtRed, msgBox.config.dtGreen, msgBox.config.dtBlue })
+                    else
+                        tes3.messageBox("You're too knowledgeable to train the " .. skillSelection .. " skill through simple practice!")
+                    end
                     switch = 0
                     log:debug("Cannot train expert skill! Skill Number: " .. skillNumber .. "")
                 end
             end
             --Endurance Limit?--
             if (hourText > endLimit and switch == 1 and config.sessionLimit == true) then
-                tes3.messageBox("You lack the endurance to train " ..
-                    skillSelection .. " beyond " .. endLimit .. " hours.")
+                if msgBox then
+                    msgBox.logMessage("You lack the endurance to train " .. skillSelection .. " beyond " .. endLimit .. " hours.", { msgBox.config.dtRed, msgBox.config.dtGreen, msgBox.config.dtBlue })
+                else
+                    tes3.messageBox("You lack the endurance to train " .. skillSelection .. " beyond " .. endLimit .. " hours.")
+                end
                 switch = 0
                 log:debug("You lack the endurance to train " .. skillSelection .. " beyond " .. endLimit .. " hours.")
             end
@@ -890,18 +950,23 @@ local function onOK(e)
             local fatCost = (hourText * costPerHr)
             log:trace("Total Fatigue/Health cost calculated as " .. fatCost .. ".")
             if (tes3.mobilePlayer.fatigue.current < fatCost and switch == 1 and hthSwitch == 0) then
-                tes3.messageBox("You lack the " ..
-                    fatCost .. " stamina required to train " .. skillSelection .. " for that long.")
+                if msgBox then
+                    msgBox.logMessage("You lack the " .. fatCost .. " stamina required to train " .. skillSelection .. " for that long.", { msgBox.config.dtRed, msgBox.config.dtGreen, msgBox.config.dtBlue })
+                else
+                    tes3.messageBox("You lack the " .. fatCost .. " stamina required to train " .. skillSelection .. " for that long.")
+                end
                 switch = 0
                 log:debug("You lack the " ..
                     fatCost .. " stamina required to train " .. skillSelection .. " for that long.")
             end
             if (tes3.mobilePlayer.fatigue.current <= fatCost and switch == 1 and hthSwitch == 1) then
-                tes3.messageBox("You lack the " ..
-                    fatCost .. " fortitude required to train " .. skillSelection .. " for that long.")
+                if msgBox then
+                    msgBox.logMessage("You lack the " .. fatCost .. " fortitude required to train " .. skillSelection .. " for that long.", { msgBox.config.dtRed, msgBox.config.dtGreen, msgBox.config.dtBlue })
+                else
+                    tes3.messageBox("You lack the " .. fatCost .. " fortitude required to train " .. skillSelection .. " for that long.")
+                end
                 switch = 0
-                log:debug("You lack the " ..
-                    fatCost .. " fortitude required to train " .. skillSelection .. " for that long.")
+                log:debug("You lack the " .. fatCost .. " fortitude required to train " .. skillSelection .. " for that long.")
             end
             --Training Success--
             if switch == 1 then

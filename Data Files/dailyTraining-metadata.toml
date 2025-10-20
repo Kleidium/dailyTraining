@@ -1,0 +1,7 @@
+[package]
+name = "Daily Training"
+description = "This MWSE mod allows you to spend time training rather than wasting time waiting. Gain small experience in trained skill per hour trained, with or without restrictions."
+homepage = "https://www.nexusmods.com/morrowind/mods/51845"
+repository = "https://github.com/Kleidium/dailyTraining"
+authors = ["Kleidium"]
+version = "2.0.3"
